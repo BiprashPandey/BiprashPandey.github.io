@@ -1,64 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI/ML Portfolio | Pulchowk Engineer</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Biprash Pandey — Computer Engineer</title>
+<meta name="description" content="Portfolio of Biprash Pandey, Computer Engineering student focused on AI, machine learning and systems." />
+<link rel="stylesheet" href="style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <canvas id="neuralCanvas"></canvas>
-    
-    <nav>
-        <div class="logo">Neural/Art</div>
-        <div class="links">
-            <a href="#about">About</a>
-            <a href="#projects">Projects</a>
-            <a href="#contact">Contact</a>
+
+  <!-- Ocean canvas background -->
+  <canvas id="ocean-canvas"></canvas>
+  <div class="ocean-vignette"></div>
+  <div class="depth-overlay" id="depth-overlay"></div>
+
+  <!-- Cursor -->
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <!-- Depth gauge -->
+  <div class="depth-gauge" id="depth-gauge">
+    <span class="gauge-meters" id="gauge-meters">0 m</span>
+    <span class="gauge-zone" id="gauge-zone">Sunlight Zone</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#top" class="nav-logo">
+      <span class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M2 17c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0M2 12c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <span class="logo-text">Biprash Pandey</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#about" class="nav-link"><span class="nav-idx">01</span>About</a>
+      <a href="#skills" class="nav-link"><span class="nav-idx">02</span>Skills</a>
+      <a href="#projects" class="nav-link"><span class="nav-idx">03</span>Work</a>
+      <a href="#journey" class="nav-link"><span class="nav-idx">04</span>Journey</a>
+      <a href="#contact" class="nav-link"><span class="nav-idx">05</span>Contact</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span class="status-text">open to opportunities</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle day / night dive">
+        <span class="theme-toggle-track">
+          <span class="theme-toggle-thumb">
+            <svg class="icon-depth" width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" fill="currentColor"/></svg>
+            <svg class="icon-surface" width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+        </span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero" id="top">
+    <div class="hero-inner" id="about">
+      <p class="hero-eyebrow"><span class="eyebrow-line"></span>Computer Engineering Student</p>
+
+      <h1 class="hero-name">
+        <span class="line">Biprash</span>
+        <span class="line accent">Pandey</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Charting a course through <span class="hl">machine learning</span>,
+        <span class="hl">deep learning</span> and the systems that carry them to production.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">
+          <span>Get in touch</span>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#" class="btn-secondary">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1v9m0 0L5 7m3 3l3-3M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Download CV</span>
+        </a>
+      </div>
+
+      <div class="hero-log">
+        <div class="log-item">
+          <span class="log-label">position</span>
+          <span class="log-value">27.6588° N, 85.3247° E</span>
         </div>
-    </nav>
-
-    <header class="hero">
-        <div class="content">
-            <h1 class="glitch" data-text="Your Name">Your Name</h1>
-            <p class="subtitle">Computer Engineering Student @ Pulchowk Campus</p>
-            <p class="focus">Exploring the latent space of AI, ML, and Deep Networks.</p>
+        <div class="log-item">
+          <span class="log-label">port</span>
+          <span class="log-value">Lalitpur, Nepal</span>
         </div>
-    </header>
-
-    <section id="about" class="glass-section">
-        <h2>The Architecture</h2>
-        <p>I am a developer who views code as a medium for digital intelligence. Specializing in deep learning architectures, I bridge the gap between abstract mathematical models and real-world engineering solutions.</p>
-    </section>
-
-    <section id="projects">
-        <h2 class="section-title">Inferences (Projects)</h2>
-        <div class="project-grid">
-            <div class="project-card">
-                <div class="card-inner">
-                    <h3>Computer Vision API</h3>
-                    <p>Optimized CNN for real-time edge detection and classification.</p>
-                    <span class="tag">PyTorch</span>
-                </div>
-            </div>
-            <div class="project-card">
-                <div class="card-inner">
-                    <h3>NLP Transformer Model</h3>
-                    <p>A custom attention-based model for specialized sentiment analysis.</p>
-                    <span class="tag">TensorFlow</span>
-                </div>
-            </div>
-            <div class="project-card">
-                <div class="card-inner">
-                    <h3>Generative Adversarial Nets</h3>
-                    <p>Exploring synthetic data generation for medical imaging.</p>
-                    <span class="tag">GANs</span>
-                </div>
-            </div>
+        <div class="log-item">
+          <span class="log-label">vessel</span>
+          <span class="log-value">B.S. Computer Engineering</span>
         </div>
-    </section>
+        <div class="log-item">
+          <span class="log-label">heading</span>
+          <span class="log-value">AI · ML · Deep Learning</span>
+        </div>
+      </div>
+    </div>
 
-    <script src="script.js"></script>
+    <div class="scroll-cue">
+      <span>scroll</span>
+      <div class="scroll-line"><div class="scroll-drop"></div></div>
+    </div>
+
+  </header>
+
+  <!-- Skills -->
+  <section class="section" id="skills">
+    <div class="section-header">
+      <span class="section-eyebrow">Instrumentation</span>
+      <h2 class="section-title">Skills &amp; Stack</h2>
+      <p class="section-sub">The tools I use to navigate models from notebook to production.</p>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill-category">
+        <div class="skill-cat-header">
+          <div class="skill-cat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span>AI / ML</span>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag level-expert">PyTorch</span>
+          <span class="skill-tag level-expert">TensorFlow</span>
+          <span class="skill-tag level-expert">Scikit-learn</span>
+          <span class="skill-tag level-mid">Hugging Face</span>
+          <span class="skill-tag level-mid">LangChain</span>
+          <span class="skill-tag level-mid">OpenCV</span>
+          <span class="skill-tag level-mid">CUDA</span>
+        </div>
+      </div>
+
+      <div class="skill-category">
+        <div class="skill-cat-header">
+          <div class="skill-cat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <span>Languages</span>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag level-expert">Python</span>
+          <span class="skill-tag level-expert">C++</span>
+          <span class="skill-tag level-mid">JavaScript</span>
+          <span class="skill-tag level-mid">TypeScript</span>
+          <span class="skill-tag level-junior">Rust</span>
+          <span class="skill-tag level-mid">SQL</span>
+        </div>
+      </div>
+
+      <div class="skill-category">
+        <div class="skill-cat-header">
+          <div class="skill-cat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <span>Infrastructure</span>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag level-mid">AWS</span>
+          <span class="skill-tag level-mid">Docker</span>
+          <span class="skill-tag level-mid">Kubernetes</span>
+          <span class="skill-tag level-mid">MLflow</span>
+          <span class="skill-tag level-junior">Terraform</span>
+          <span class="skill-tag level-mid">Git</span>
+        </div>
+      </div>
+
+      <div class="skill-category">
+        <div class="skill-cat-header">
+          <div class="skill-cat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <span>Research</span>
+        </div>
+        <div class="skill-tags">
+          <span class="skill-tag level-expert">Deep Learning</span>
+          <span class="skill-tag level-expert">NLP</span>
+          <span class="skill-tag level-mid">Computer Vision</span>
+          <span class="skill-tag level-mid">Reinforcement Learning</span>
+          <span class="skill-tag level-mid">MLOps</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proficiency-section">
+      <h3 class="proficiency-title">Depth Chart <span>— core proficiencies</span></h3>
+      <div class="bars-grid">
+        <div class="bar-item">
+          <div class="bar-header"><span>Machine Learning</span><span class="bar-pct">95%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="95"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><span>Deep Learning / Neural Networks</span><span class="bar-pct">90%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="90"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><span>Python / PyTorch</span><span class="bar-pct">92%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="92"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><span>Natural Language Processing</span><span class="bar-pct">80%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="80"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><span>Systems Design / C++</span><span class="bar-pct">78%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="78"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-header"><span>MLOps / Cloud</span><span class="bar-pct">72%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-width="72"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Projects -->
+  <section class="section alt" id="projects">
+    <div class="section-header">
+      <span class="section-eyebrow">Cargo hold</span>
+      <h2 class="section-title">Featured Work</h2>
+      <p class="section-sub">The hold is being loaded — full case studies are on their way ashore.</p>
+    </div>
+
+    <div class="projects-grid">
+      <div class="project-empty">
+        <div class="empty-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 10l1.5-5A2 2 0 016.4 3.5h11.2a2 2 0 011.9 1.5L21 10M3 10v8a2 2 0 002 2h14a2 2 0 002-2v-8M3 10h18M9 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Projects loading</h3>
+        <p>I'm currently packing case studies from coursework and personal builds into this hold. Check back soon, or ask me directly — I'm happy to walk through what I've been building.</p>
+        <a href="#contact" class="empty-link">
+          <span>Ask me about it</span>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Journey -->
+  <section class="section" id="journey">
+    <div class="section-header">
+      <span class="section-eyebrow">Ship's log</span>
+      <h2 class="section-title">Journey</h2>
+      <p class="section-sub">Waypoints so far — education, credentials and where I'm headed next.</p>
+    </div>
+
+    <div class="journey-grid">
+      <div class="journey-col">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-period">2024 — ongoing</div>
+              <h4 class="timeline-role">B.S. Computer Engineering</h4>
+              <div class="timeline-company">Institute of Engineering, Pulchowk Campus</div>
+              <p class="timeline-desc">Semester GPA: 3.68 · 3.5 · 3.85 · 3.79. Serving as a teaching assistant alongside coursework.</p>
+              <div class="timeline-tags"><span>Coursework</span><span>Teaching Assistant</span></div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-period">In progress</div>
+              <h4 class="timeline-role">AWS Certified Solutions Architect — Associate</h4>
+              <div class="timeline-company">Amazon Web Services</div>
+              <p class="timeline-desc">Cloud design principles, core AWS services, and building scalable, cost-efficient systems.</p>
+              <div class="timeline-tags"><span>AWS</span><span>Cloud</span><span>Architecture</span></div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot open"></div>
+            <div class="timeline-content">
+              <div class="timeline-period">Next</div>
+              <h4 class="timeline-role">Research &amp; ML Engineering Roles</h4>
+              <div class="timeline-company">Actively looking</div>
+              <p class="timeline-desc">Seeking internships or research opportunities in applied ML, deep learning and systems.</p>
+              <div class="timeline-tags"><span>Open to work</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Contact -->
+  <section class="section alt contact-section" id="contact">
+    <div class="section-header">
+      <span class="section-eyebrow">Send a signal</span>
+      <h2 class="section-title">Let's Connect</h2>
+      <p class="section-sub">Looking for research roles and ML engineering internships — reach out any time.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-left">
+        <p class="contact-lead">
+          Whether you have a project, a question, or just want to talk about AI — I'd love to hear from you.
+        </p>
+        <div class="contact-links">
+          <a href="mailto:biprashpandey@gmail.com" class="contact-link">
+            <div class="contact-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5"/><polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <div>
+              <span class="contact-link-label">Email</span>
+              <span class="contact-link-val">biprashpandey@gmail.com</span>
+            </div>
+          </a>
+          <a href="https://github.com/biprashpandey" target="_blank" rel="noopener" class="contact-link">
+            <div class="contact-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+            </div>
+            <div>
+              <span class="contact-link-label">GitHub</span>
+              <span class="contact-link-val">github.com/biprashpandey</span>
+            </div>
+          </a>
+          <a href="https://linkedin.com/in/biprashpandey" target="_blank" rel="noopener" class="contact-link">
+            <div class="contact-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </div>
+            <div>
+              <span class="contact-link-label">LinkedIn</span>
+              <span class="contact-link-val">linkedin.com/in/biprashpandey</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-right">
+        <div class="contact-form">
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-input" placeholder="Your name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="your@email.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message</label>
+            <textarea class="form-input form-textarea" placeholder="Tell me about your project or opportunity..."></textarea>
+          </div>
+          <button class="btn-primary btn-full" id="send-btn">
+            <span>Send Message</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><line x1="22" y1="2" x2="11" y2="13" stroke="currentColor" stroke-width="2"/><polygon points="22 2 15 22 11 13 2 9 22 2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <span class="footer-logo">Biprash Pandey</span>
+        <span class="footer-copy">© 2026. Built with a steady current and too much coffee.</span>
+      </div>
+      <a href="#top" class="footer-right">Back to shore ↑</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
