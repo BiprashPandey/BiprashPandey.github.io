@@ -159,7 +159,8 @@ function paletteForDepth(progress) {
         }
       });
 
-      const moonX = width * 0.82, moonY = horizonY, moonR = 40;
+      const moonR = 42;
+      const moonX = width * 0.82, moonY = Math.min(horizonY - moonR - 18, 90);
       const moonGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, moonR * 3.2);
       moonGlow.addColorStop(0, 'rgba(210,222,240,0.28)');
       moonGlow.addColorStop(1, 'rgba(210,222,240,0)');
@@ -168,28 +169,37 @@ function paletteForDepth(progress) {
       ctx.fillStyle = moonGlow;
       ctx.fill();
 
+      // base disc
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+      ctx.fillStyle = '#e8edf5';
+      ctx.fill();
+
+      // craters (clipped to the disc so nothing spills outside it)
       ctx.save();
       ctx.beginPath();
       ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
       ctx.clip();
-      ctx.fillStyle = '#e8edf5';
-      ctx.fillRect(moonX - moonR, moonY - moonR, moonR * 2, moonR * 2);
-      // crescent shadow
-      ctx.beginPath();
-      ctx.arc(moonX + moonR * 0.42, moonY - moonR * 0.18, moonR * 0.92, 0, Math.PI * 2);
-      ctx.fillStyle = '#040814';
-      ctx.fill();
-      ctx.restore();
-
-      // craters
-      ctx.fillStyle = 'rgba(180,192,212,0.5)';
-      [[-0.32, -0.28, 0.13], [-0.5, 0.12, 0.09], [-0.12, 0.32, 0.07]].forEach(([dx, dy, r]) => {
+      ctx.fillStyle = 'rgba(170,183,206,0.55)';
+      [[-0.32, -0.28, 0.15], [-0.48, 0.15, 0.1], [-0.05, 0.38, 0.08], [0.22, -0.35, 0.07]].forEach(([dx, dy, r]) => {
         ctx.beginPath();
         ctx.arc(moonX + dx * moonR, moonY + dy * moonR, r * moonR, 0, Math.PI * 2);
         ctx.fill();
       });
+
+      // soft terminator shading for a gentle waning-gibbous look, cut cleanly
+      // out of the disc via compositing so it can never paint outside it
+      ctx.globalCompositeOperation = 'destination-in';
+      const shade = ctx.createRadialGradient(moonX - moonR * 0.3, moonY, 0, moonX, moonY, moonR * 1.4);
+      shade.addColorStop(0, 'rgba(255,255,255,1)');
+      shade.addColorStop(0.75, 'rgba(255,255,255,1)');
+      shade.addColorStop(1, 'rgba(255,255,255,0.6)');
+      ctx.fillStyle = shade;
+      ctx.fillRect(moonX - moonR, moonY - moonR, moonR * 2, moonR * 2);
+      ctx.restore();
     } else {
-      const sunX = width * 0.82, sunY = horizonY, sunR = 46;
+      const sunR = 46;
+      const sunX = width * 0.82, sunY = Math.min(horizonY - sunR - 18, 90);
       const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 3.2);
       glow.addColorStop(0, 'rgba(255,214,140,0.55)');
       glow.addColorStop(1, 'rgba(255,214,140,0)');
@@ -334,7 +344,7 @@ function paletteForDepth(progress) {
 
   function drawFrame() {
     const zone = zoneAt(OceanState.depth);
-    const horizonY = 96 - window.scrollY * 0.75;
+    const horizonY = 132 - window.scrollY * 0.75;
 
     ctx.clearRect(0, 0, width, height);
 
@@ -508,8 +518,13 @@ function paletteForDepth(progress) {
 // ==========================================
 (function initNavScroll() {
   const nav = document.querySelector('.nav');
+  const maxBlur = 6;
+  const rampDistance = 160; // px of scroll over which blur fades in
   window.addEventListener('scroll', () => {
     nav.style.boxShadow = window.scrollY > 20 ? '0 10px 30px rgba(0,0,0,0.25)' : 'none';
+    const blur = Math.min(1, window.scrollY / rampDistance) * maxBlur;
+    nav.style.backdropFilter = `blur(${blur.toFixed(1)}px)`;
+    nav.style.webkitBackdropFilter = `blur(${blur.toFixed(1)}px)`;
   });
 })();
 
