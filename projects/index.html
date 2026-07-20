@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects — Biprash Pandey</title>
+<meta name="description" content="Project log of Biprash Pandey — machine learning, deep learning and systems work." />
+<link rel="stylesheet" href="../style.css" />
+<link rel="stylesheet" href="style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="projects-page">
+
+  <div class="projects-bg"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="../index.html" class="nav-logo">
+      <span class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M2 17c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0M2 12c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <span class="logo-text">Biprash Pandey</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="../index.html#about" class="nav-link"><span class="nav-idx">01</span>About</a>
+      <a href="../index.html#skills" class="nav-link"><span class="nav-idx">02</span>Skills</a>
+      <a href="#" class="nav-link active"><span class="nav-idx">03</span>Work</a>
+      <a href="../index.html#journey" class="nav-link"><span class="nav-idx">04</span>Journey</a>
+      <a href="../index.html#contact" class="nav-link"><span class="nav-idx">05</span>Contact</a>
+    </div>
+
+    <div class="nav-right">
+      <a href="../index.html" class="nav-back">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Back to portfolio</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ================= BROWSE VIEW ================= -->
+  <main class="view view-grid" id="view-grid">
+    <div class="grid-header">
+      <span class="section-eyebrow">Cargo hold</span>
+      <h1 class="section-title">Project Log</h1>
+      <p class="section-sub">Case studies from coursework, research and personal builds — click any entry to open the full log.</p>
+
+      <div class="filter-row" id="filter-row"></div>
+    </div>
+
+    <div class="projects-grid-yt" id="projects-grid-yt"></div>
+  </main>
+
+  <!-- ================= DETAIL VIEW ================= -->
+  <main class="view view-detail" id="view-detail" hidden>
+    <button class="detail-back" id="detail-back">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>All projects</span>
+    </button>
+
+    <div class="detail-layout">
+
+      <!-- LEFT — 75% -->
+      <div class="detail-main">
+        <div class="detail-banner" id="detail-banner">
+          <div class="detail-banner-icon" id="detail-banner-icon"></div>
+          <span class="detail-banner-tag" id="detail-banner-tag"></span>
+          <a class="detail-banner-play" id="detail-banner-play" target="_blank" rel="noopener" aria-label="Open live demo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
+          </a>
+        </div>
+
+        <h1 class="detail-title" id="detail-title"></h1>
+
+        <div class="detail-meta-row">
+          <div class="detail-meta-left">
+            <span id="detail-category"></span>
+            <span class="meta-dot">·</span>
+            <span id="detail-date"></span>
+            <span class="meta-dot">·</span>
+            <span id="detail-stat"></span>
+          </div>
+          <div class="detail-actions">
+            <a class="btn-secondary btn-sm" id="detail-github" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+              <span>Source</span>
+            </a>
+            <a class="btn-primary btn-sm" id="detail-demo" target="_blank" rel="noopener">
+              <span>Live demo</span>
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="detail-tags" id="detail-tags"></div>
+
+        <div class="detail-description-box">
+          <p id="detail-description"></p>
+          <ul class="detail-highlights" id="detail-highlights"></ul>
+        </div>
+      </div>
+
+      <!-- RIGHT — 25% -->
+      <aside class="detail-side">
+        <div class="side-block">
+          <h3 class="side-heading">Up next</h3>
+          <div class="up-next-list" id="up-next-list"></div>
+        </div>
+
+        <div class="side-block comments-block">
+          <h3 class="side-heading" id="comments-heading">Comments</h3>
+
+          <div class="comment-form">
+            <div class="comment-avatar">?</div>
+            <div class="comment-form-body">
+              <textarea class="comment-input" id="comment-input" placeholder="Add a comment..." rows="1"></textarea>
+              <div class="comment-actions" id="comment-actions" hidden>
+                <button class="btn-ghost btn-sm" id="comment-cancel">Cancel</button>
+                <button class="btn-primary btn-sm" id="comment-submit">Comment</button>
+              </div>
+            </div>
+          </div>
+          <p class="comments-note">Comments are stored locally in your browser for this demo — they aren't sent anywhere.</p>
+
+          <div class="comments-list" id="comments-list"></div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <span class="footer-logo">Biprash Pandey</span>
+        <span class="footer-copy">© 2026. Built with a steady current and too much coffee.</span>
+      </div>
+      <a href="#view-grid" class="footer-right">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
