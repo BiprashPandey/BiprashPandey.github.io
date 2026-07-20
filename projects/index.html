@@ -13,7 +13,19 @@
 </head>
 <body class="projects-page">
 
-  <div class="projects-bg"></div>
+  <!-- Ocean canvas background — identical to homepage -->
+  <canvas id="ocean-canvas"></canvas>
+  <div class="ocean-vignette"></div>
+  <div class="depth-overlay" id="depth-overlay"></div>
+
+  <!-- Cursor -->
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <!-- Depth gauge -->
+  <div class="depth-gauge" id="depth-gauge">
+    <span class="gauge-meters" id="gauge-meters">0 m</span>
+    <span class="gauge-zone" id="gauge-zone">Sunlight Zone</span>
+  </div>
 
   <!-- Navigation -->
   <nav class="nav">
@@ -27,16 +39,24 @@
     <div class="nav-links">
       <a href="../#about" class="nav-link"><span class="nav-idx">01</span>About</a>
       <a href="../#skills" class="nav-link"><span class="nav-idx">02</span>Skills</a>
-      <a href="../#projects" class="nav-link active"><span class="nav-idx">03</span>Work</a>
+      <a href="#projects" class="nav-link active"><span class="nav-idx">03</span>Work</a>
       <a href="../#journey" class="nav-link"><span class="nav-idx">04</span>Journey</a>
-      <a href="../#contact" class="nav-link"><span class="nav-idx">05</span>Contact</a>
+      <a href="../ #contact" class="nav-link"><span class="nav-idx">05</span>Contact</a>
     </div>
 
     <div class="nav-right">
-      <a href=".." class="nav-back">
+      <a href="../" class="nav-back">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Back to portfolio</span>
       </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle day / night dive">
+        <span class="theme-toggle-track">
+          <span class="theme-toggle-thumb">
+            <svg class="icon-depth" width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" fill="currentColor"/></svg>
+            <svg class="icon-surface" width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+        </span>
+      </button>
     </div>
   </nav>
 
@@ -142,6 +162,7 @@
     </div>
   </footer>
 
+  <script src="../script.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
