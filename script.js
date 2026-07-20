@@ -579,3 +579,85 @@ function paletteForDepth(progress) {
     }
   });
 })();
+
+
+// ==========================================
+// 9. LATEST WORK SLIDESHOW
+// ==========================================
+(function initWorkWidget() {
+  const widget = document.getElementById('work-widget');
+  if (!widget) return;
+
+  // EDIT ME — swap these in for your real projects.
+  // The whole card links to biprashpandey.com.np/projects,
+  // so keep these as short teasers, not full case studies.
+  const slides = [
+    {
+      title: 'Ocean Current Anomaly Detector',
+      desc: 'LSTM-based model flagging irregular current patterns from buoy sensor data.',
+      tags: ['PyTorch', 'Time Series', 'LSTM']
+    },
+    {
+      title: 'Handwritten Devanagari OCR',
+      desc: 'CNN pipeline for recognizing handwritten Nepali script, trained from scratch.',
+      tags: ['CNN', 'OpenCV', 'Python']
+    },
+    {
+      title: 'Campus Bus Tracker',
+      desc: 'Real-time GPS tracking web app for Pulchowk Campus shuttle routes.',
+      tags: ['React', 'Node.js', 'WebSocket']
+    }
+  ];
+
+  const titleEl = document.getElementById('work-widget-title');
+  const descEl = document.getElementById('work-widget-desc');
+  const tagsEl = document.getElementById('work-widget-tags');
+  const indexEl = document.getElementById('work-widget-index');
+  const totalEl = document.getElementById('work-widget-total');
+  const dotsEl = document.getElementById('work-widget-dots');
+
+  const pad = n => String(n + 1).padStart(2, '0');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let current = 0;
+  let timer = null;
+
+  function render(i) {
+    const s = slides[i];
+    titleEl.textContent = s.title;
+    descEl.textContent = s.desc;
+    tagsEl.innerHTML = s.tags.map(t => `<span>${t}</span>`).join('');
+    indexEl.textContent = pad(i);
+    [...dotsEl.children].forEach((dot, di) => dot.classList.toggle('active', di === i));
+  }
+
+  function goTo(i) {
+    current = (i + slides.length) % slides.length;
+    render(current);
+    restart();
+  }
+
+  function next() { goTo(current + 1); }
+
+  function restart() {
+    if (reduceMotion || slides.length < 2) return;
+    clearInterval(timer);
+    timer = setInterval(next, 5000);
+  }
+
+  totalEl.textContent = pad(slides.length - 1);
+  slides.forEach((_, i) => {
+    const dot = document.createElement('span');
+    dot.className = 'work-widget-dot-btn';
+    dot.setAttribute('role', 'button');
+    dot.setAttribute('aria-label', `Show project ${i + 1}`);
+    dot.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(dot);
+  });
+
+  render(0);
+  restart();
+
+  widget.addEventListener('mouseenter', () => clearInterval(timer));
+  widget.addEventListener('mouseleave', restart);
+})();
