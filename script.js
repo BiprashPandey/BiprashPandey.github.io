@@ -760,3 +760,15 @@ function paletteForDepth(progress) {
   widget.addEventListener('mouseenter', () => clearInterval(timer));
   widget.addEventListener('mouseleave', restart);
 })();
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.location.hash) {
+        const targetElement = document.querySelector(window.location.hash);
+        if (targetElement) {
+            // Small timeout ensures the DOM and layout are fully rendered before scrolling
+            setTimeout(() => {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+    }
+});

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+        // Extract the path segments (e.g., "/contact" -> "contact")
+        const path = window.location.pathname.replace(/^\/|\/$/g, '');
+        
+        if (path) {
+            // Redirect back to the homepage with the path as a hash anchor
+            window.location.replace('/#' + path);
+        } else {
+            // Fallback to home if root
+            window.location.replace('/');
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting to section...</p>
+</body>
+</html>
