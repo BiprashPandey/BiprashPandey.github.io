@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gallery — Biprash Pandey</title>
+<meta name="description" content="Photo gallery of Biprash Pandey." />
+<link rel="stylesheet" href="../style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Ocean canvas background -->
+  <canvas id="ocean-canvas"></canvas>
+  <div class="ocean-vignette"></div>
+  <div class="depth-overlay" id="depth-overlay"></div>
+
+  <!-- Cursor -->
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <!-- Depth gauge -->
+  <div class="depth-gauge" id="depth-gauge">
+    <span class="gauge-meters" id="gauge-meters">0 m</span>
+    <span class="gauge-zone" id="gauge-zone">Sunlight Zone</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="../index.html#top" class="nav-logo">
+      <span class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M2 17c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0M2 12c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <span class="logo-text">Biprash Pandey</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="../index.html#about" class="nav-link"><span class="nav-idx">01</span>About</a>
+      <a href="../index.html#skills" class="nav-link"><span class="nav-idx">02</span>Skills</a>
+      <a href="../index.html#projects" class="nav-link"><span class="nav-idx">03</span>Work</a>
+      <a href="../index.html#journey" class="nav-link"><span class="nav-idx">04</span>Journey</a>
+      <a href="index.html" class="nav-link active"><span class="nav-idx">05</span>Gallery</a>
+      <a href="../index.html#contact" class="nav-link"><span class="nav-idx">06</span>Contact</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-status">
+        <span class="status-dot"></span>
+        <span class="status-text">open to opportunities</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle day / night dive">
+        <span class="theme-toggle-track">
+          <span class="theme-toggle-thumb">
+            <svg class="icon-depth" width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" fill="currentColor"/></svg>
+            <svg class="icon-surface" width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+        </span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Gallery hero -->
+  <header class="gallery-hero">
+    <p class="hero-eyebrow"><span class="eyebrow-line"></span>Photo Log</p>
+    <h1 class="gallery-title">Gallery</h1>
+    <p class="gallery-sub">A collection of moments, captured between dives into code.</p>
+  </header>
+
+  <!-- Gallery grid -->
+  <section class="section gallery-section">
+    <div class="gallery-grid" id="gallery-grid"></div>
+    <p class="gallery-empty" id="gallery-empty" hidden>
+      No photos yet — drop images into <code>/gallery/photos</code> and run
+      <code>generate-manifest.py</code> to update <code>manifest.json</code>.
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <span class="footer-logo">Biprash Pandey</span>
+        <span class="footer-copy">© 2026. Built with a steady current and too much coffee.</span>
+      </div>
+      <a href="../index.html#top" class="footer-right">Back to shore ↑</a>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <button class="lightbox-prev" id="lightbox-prev" aria-label="Previous photo">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <img class="lightbox-img" id="lightbox-img" alt="" />
+    <button class="lightbox-next" id="lightbox-next" aria-label="Next photo">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <span class="lightbox-count" id="lightbox-count"></span>
+  </div>
+
+  <script src="../script.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>

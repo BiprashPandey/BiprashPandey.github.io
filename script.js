@@ -661,3 +661,102 @@ function paletteForDepth(progress) {
   widget.addEventListener('mouseenter', () => clearInterval(timer));
   widget.addEventListener('mouseleave', restart);
 })();
+
+
+// ==========================================
+// 10. PHOTO SLIDESHOW WIDGET
+// ==========================================
+// Reads gallery/photos/manifest.json — a plain JSON array of filenames,
+// e.g. ["beach.jpg", "trek-01.png", "friends.webp"].
+// Regenerate it any time with gallery/generate-manifest.py so it stays
+// in sync with whatever's actually sitting in /gallery/photos.
+// Only ONE photo is ever loaded at a time (the next isn't fetched until
+// it's about to be shown), so this stays light no matter how many
+// photos are in the folder.
+(function initPhotoWidget() {
+  const widget = document.getElementById('photo-widget');
+  if (!widget) return;
+
+  const imgEl = document.getElementById('photo-widget-img');
+  const indexEl = document.getElementById('photo-widget-index');
+  const totalEl = document.getElementById('photo-widget-total');
+  const dotsEl = document.getElementById('photo-widget-dots');
+  const frameEl = widget.querySelector('.photo-widget-frame');
+
+  const MANIFEST_URL = 'gallery/photos/manifest.json';
+  const PHOTOS_DIR = 'gallery/photos/';
+  const MAX_DOTS = 10;
+
+  const pad = n => String(n + 1).padStart(2, '0');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let slides = [];
+  let current = 0;
+  let timer = null;
+
+  function showEmpty() {
+    if (frameEl) {
+      frameEl.innerHTML = '<span class="photo-widget-empty-text">Add photos to /gallery/photos</span>';
+    }
+    if (indexEl) indexEl.textContent = '00';
+    if (totalEl) totalEl.textContent = '00';
+  }
+
+  function render(i) {
+    const file = slides[i];
+    const preload = new Image();
+    preload.decoding = 'async';
+    preload.onload = () => {
+      imgEl.src = preload.src;
+      imgEl.classList.add('is-loaded');
+    };
+    preload.src = PHOTOS_DIR + encodeURIComponent(file);
+    imgEl.alt = `Photo ${i + 1}`;
+    indexEl.textContent = pad(i);
+    if (dotsEl.children.length) {
+      [...dotsEl.children].forEach((dot, di) => dot.classList.toggle('active', di === i));
+    }
+  }
+
+  function goTo(i) {
+    current = (i + slides.length) % slides.length;
+    render(current);
+    restart();
+  }
+
+  function next() { goTo(current + 1); }
+
+  function restart() {
+    if (reduceMotion || slides.length < 2) return;
+    clearInterval(timer);
+    timer = setInterval(next, 5000);
+  }
+
+  fetch(MANIFEST_URL)
+    .then(res => { if (!res.ok) throw new Error('no manifest'); return res.json(); })
+    .then(list => {
+      if (!Array.isArray(list) || list.length === 0) throw new Error('empty manifest');
+      slides = list;
+      totalEl.textContent = pad(slides.length - 1);
+
+      if (slides.length <= MAX_DOTS) {
+        slides.forEach((_, i) => {
+          const dot = document.createElement('span');
+          dot.className = 'photo-widget-dot-btn';
+          dot.setAttribute('role', 'button');
+          dot.setAttribute('aria-label', `Show photo ${i + 1}`);
+          dot.addEventListener('click', e => { e.preventDefault(); goTo(i); });
+          dotsEl.appendChild(dot);
+        });
+      } else {
+        dotsEl.style.display = 'none';
+      }
+
+      render(0);
+      restart();
+    })
+    .catch(showEmpty);
+
+  widget.addEventListener('mouseenter', () => clearInterval(timer));
+  widget.addEventListener('mouseleave', restart);
+})();
