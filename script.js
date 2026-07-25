@@ -772,3 +772,28 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+
+// ==========================================
+// 11. ABOUT ME TOGGLE
+// ==========================================
+(function initAboutToggle() {
+  const wrap = document.getElementById('about-toggle-wrap');
+  if (!wrap) return;
+ 
+  const trigger = document.getElementById('about-trigger');
+  const collapse = document.getElementById('about-collapse');
+ 
+  function open() {
+    wrap.classList.add('is-open');
+    trigger.setAttribute('aria-expanded', 'true');
+  }
+  function close() {
+    wrap.classList.remove('is-open');
+    trigger.setAttribute('aria-expanded', 'false');
+  }
+ 
+  trigger.addEventListener('click', open);
+  collapse.addEventListener('click', close);
+})();
+ 

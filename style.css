@@ -1001,3 +1001,70 @@ body.surface .icon-surface { display: block; }
   .lightbox-next { right: 10px; }
   .lightbox-close { top: 14px; right: 14px; }
 }
+
+
+/* ==========================================
+   About me — expandable toggle
+========================================== */
+.about-toggle-wrap { margin: 22px 0 4px; }
+ 
+.about-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  color: var(--foam);
+  border: 1px solid var(--navy-border);
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: rgba(134, 220, 201, 0.04);
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease), gap 0.25s var(--ease);
+}
+.about-trigger:hover {
+  border-color: var(--foam-dim);
+  background: rgba(134, 220, 201, 0.08);
+  gap: 11px;
+}
+.about-toggle-wrap.is-open .about-trigger { display: none; }
+ 
+.about-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s var(--ease);
+}
+.about-toggle-wrap.is-open .about-panel { grid-template-rows: 1fr; }
+ 
+.about-panel-inner { overflow: hidden; min-height: 0; }
+ 
+.about-panel-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 560px;
+  padding-top: 4px;
+  padding-bottom: 16px;
+}
+ 
+.about-collapse {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--navy-border);
+  padding-bottom: 3px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: color 0.25s var(--ease), border-color 0.25s var(--ease), gap 0.25s var(--ease);
+}
+.about-collapse:hover {
+  color: var(--foam);
+  border-color: var(--foam-dim);
+  gap: 11px;
+}
+ 

@@ -69,10 +69,38 @@
         <span class="line accent">Pandey</span>
       </h1>
 
-      <p class="hero-subtitle">
+      <!-- <p class="hero-subtitle">
         Charting a course through <span class="hl">machine learning</span>,
         <span class="hl">deep learning</span> and the systems that carry them to production.
-      </p>
+      </p> -->
+
+      <div class="about-toggle-wrap" id="about-toggle-wrap">
+        <button class="about-trigger" id="about-trigger" aria-expanded="false" aria-controls="about-panel">
+          <span>About me</span>
+          <svg class="about-trigger-arrow" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="about-panel" id="about-panel">
+          <div class="about-panel-inner">
+            <p class="about-panel-text">
+              I'm a computer engineering student at Pulchowk Campus, chasing the point where models
+              stop being notebooks and start being systems people can actually rely on. Outside of
+              coursework I spend most of my time training small models, breaking bigger ones, and
+              slowly rebuilding my understanding of how they work under the hood. When I'm not
+              staring at loss curves, I'm probably out with a camera, exploring Kathmandu, or
+              arguing with a Rust compiler for fun.
+            </p>
+            <button class="about-collapse" id="about-collapse">
+              <span>See less</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 10l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+
 
       <div class="hero-actions">
         <a href="#contact" class="btn-primary">
