@@ -36,11 +36,11 @@
     </a>
 
     <div class="nav-links">
-      <a href="/about" class="nav-link"><span class="nav-idx">01</span>About</a>
-      <a href="/skills" class="nav-link"><span class="nav-idx">02</span>Skills</a>
-      <a href="/projects" class="nav-link"><span class="nav-idx">03</span>Work</a>
-      <a href="/journey" class="nav-link"><span class="nav-idx">04</span>Journey</a>
-      <a href="/contact" class="nav-link"><span class="nav-idx">05</span>Contact</a>
+      <a href="#about" class="nav-link"><span class="nav-idx">01</span>About</a>
+      <a href="#skills" class="nav-link"><span class="nav-idx">02</span>Skills</a>
+      <a href="#projects" class="nav-link"><span class="nav-idx">03</span>Work</a>
+      <a href="#journey" class="nav-link"><span class="nav-idx">04</span>Journey</a>
+      <a href="#contact" class="nav-link"><span class="nav-idx">05</span>Contact</a>
     </div>
 
     <div class="nav-right">
@@ -69,10 +69,10 @@
         <span class="line accent">Pandey</span>
       </h1>
 
-      <!-- <p class="hero-subtitle">
+      <p class="hero-subtitle">
         Charting a course through <span class="hl">machine learning</span>,
         <span class="hl">deep learning</span> and the systems that carry them to production.
-      </p> -->
+      </p>
 
       <div class="about-toggle-wrap" id="about-toggle-wrap">
         <button class="about-trigger" id="about-trigger" aria-expanded="false" aria-controls="about-panel">
@@ -97,10 +97,6 @@
           </div>
         </div>
       </div>
-
-
-
-
 
       <div class="hero-actions">
         <a href="#contact" class="btn-primary">
@@ -168,7 +164,7 @@
           <span class="photo-widget-count"><span id="photo-widget-index">01</span><em>/</em><span id="photo-widget-total">01</span></span>
         </div>
 
-        <a href="/gallery" class="photo-widget-link" id="photo-widget-link">
+        <a href="gallery/index.html" class="photo-widget-link" id="photo-widget-link">
           <div class="photo-widget-frame">
             <img class="photo-widget-img" id="photo-widget-img" src="" alt="" loading="lazy" decoding="async" />
           </div>
@@ -191,7 +187,7 @@
   </header>
 
   <!-- Skills -->
-  <section class="section" id="skills">
+  <!-- <section class="section" id="skills">
     <div class="section-header">
       <span class="section-eyebrow">Instrumentation</span>
       <h2 class="section-title">Skills &amp; Stack</h2>
@@ -297,7 +293,7 @@
         </div>
       </div>
     </div>
-  </section>
+  </section> -->
 
 
   <!-- Projects -->
@@ -305,22 +301,43 @@
     <div class="section-header">
       <span class="section-eyebrow">Cargo hold</span>
       <h2 class="section-title">Featured Work</h2>
-      <p class="section-sub">The hold is being loaded — full case studies are on their way ashore.</p>
+      <p class="section-sub">Case studies from coursework, research and personal builds — click any entry to open the full log.</p>
     </div>
 
-    <div class="projects-grid">
-      <div class="project-empty">
-        <div class="empty-icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 10l1.5-5A2 2 0 016.4 3.5h11.2a2 2 0 011.9 1.5L21 10M3 10v8a2 2 0 002 2h14a2 2 0 002-2v-8M3 10h18M9 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="projects-carousel" id="projects-carousel">
+      <div class="projects-track-wrap">
+        <button class="carousel-arrow carousel-prev" id="projects-prev" aria-label="Previous projects">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="projects-track-viewport">
+          <div class="projects-track" id="projects-track"></div>
         </div>
-        <h3>Projects loading</h3>
-        <p>I'm currently packing case studies from coursework and personal builds into this hold. Check back soon, or ask me directly — I'm happy to walk through what I've been building.</p>
-        <a href="#contact" class="empty-link">
-          <span>Ask me about it</span>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
+
+        <button class="carousel-arrow carousel-next" id="projects-next" aria-label="Next projects">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
+
+      <div class="projects-dots" id="projects-dots"></div>
     </div>
+
+    <div class="project-empty" id="projects-empty" hidden>
+      <div class="empty-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 10l1.5-5A2 2 0 016.4 3.5h11.2a2 2 0 011.9 1.5L21 10M3 10v8a2 2 0 002 2h14a2 2 0 002-2v-8M3 10h18M9 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Projects loading</h3>
+      <p>I'm currently packing case studies from coursework and personal builds into this hold. Check back soon, or ask me directly — I'm happy to walk through what I've been building.</p>
+      <a href="#contact" class="empty-link">
+        <span>Ask me about it</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <a href="projects/index.html" class="projects-view-all" id="projects-view-all">
+      <span>View full project log</span>
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
   </section>
 
 
@@ -452,5 +469,7 @@
   </footer>
 
   <script src="script.js"></script>
+  <script src="projects/script.js"></script>
+  <script src="projects/projects.js"></script>
 </body>
 </html>

@@ -1,5 +1,15 @@
 // ==========================================
-// Project data
+// Project data + browse/detail view logic
+//
+// This file is shared: it's loaded on the
+// standalone /projects/ page (full browse +
+// detail views) AND on the homepage (which
+// only needs the PROJECTS/ICONS data — see
+// projects/projects.js for the homepage
+// carousel that reads them). All DOM lookups
+// below are guarded so this is safe on pages
+// that don't have the grid/detail markup.
+//
 // EDIT ME — keep titles/taglines here in sync
 // with the slides array in the homepage's
 // script.js (the hero "Latest Transmission" widget).
@@ -86,6 +96,7 @@ const filterEl = document.getElementById('filter-row');
 let activeFilter = 'All';
 
 function renderFilters() {
+  if (!filterEl) return; // no filter row on this page (e.g. homepage)
   const cats = ['All', ...new Set(PROJECTS.map(p => p.category))];
   filterEl.innerHTML = cats.map(c =>
     `<span class="filter-chip${c === activeFilter ? ' active' : ''}" data-cat="${c}">${c}</span>`
@@ -100,6 +111,7 @@ function renderFilters() {
 }
 
 function renderGrid() {
+  if (!gridEl) return; // no browse grid on this page (e.g. homepage)
   const list = activeFilter === 'All' ? PROJECTS : PROJECTS.filter(p => p.category === activeFilter);
   gridEl.innerHTML = list.map((p, i) => `
     <article class="yt-card" data-id="${p.id}" style="--i:${i}">
@@ -155,6 +167,7 @@ function initials(name) {
 function renderComments(id) {
   const listEl = document.getElementById('comments-list');
   const headingEl = document.getElementById('comments-heading');
+  if (!listEl || !headingEl) return;
   const stored = loadStoredComments(id);
   const all = [...stored, ...(seedComments[id] || [])];
   headingEl.textContent = `Comments (${all.length})`;
@@ -177,6 +190,7 @@ function renderComments(id) {
 function renderUpNext(currentId) {
   const others = PROJECTS.filter(p => p.id !== currentId);
   const el = document.getElementById('up-next-list');
+  if (!el) return;
   el.innerHTML = others.map(p => `
     <div class="up-next-item" data-id="${p.id}">
       <div class="up-next-thumb" style="--thumb-a:${p.thumbA};--thumb-b:${p.thumbB}">${ICONS[p.icon]}</div>
@@ -194,6 +208,7 @@ function renderUpNext(currentId) {
 function showDetail(id) {
   const p = byId(id);
   if (!p) return;
+  if (!viewGrid || !viewDetail) return; // no detail view on this page (e.g. homepage)
 
   document.getElementById('detail-banner').style.setProperty('--thumb-a', p.thumbA);
   document.getElementById('detail-banner').style.setProperty('--thumb-b', p.thumbB);
@@ -236,17 +251,20 @@ function showDetail(id) {
 }
 
 function showGrid() {
+  if (!viewGrid || !viewDetail) return; // no grid/detail views on this page (e.g. homepage)
   viewDetail.hidden = true;
   viewGrid.hidden = false;
 }
 
 function route() {
+  if (!viewGrid && !viewDetail) return; // this page has no project browse/detail views at all
   const id = decodeURIComponent(location.hash.replace('#', ''));
   if (id && byId(id)) showDetail(id);
   else showGrid();
 }
 
-document.getElementById('detail-back').addEventListener('click', () => { location.hash = ''; });
+const detailBackBtn = document.getElementById('detail-back');
+if (detailBackBtn) detailBackBtn.addEventListener('click', () => { location.hash = ''; });
 
 window.addEventListener('hashchange', route);
 
@@ -258,6 +276,7 @@ window.addEventListener('hashchange', route);
   const actions = document.getElementById('comment-actions');
   const cancelBtn = document.getElementById('comment-cancel');
   const submitBtn = document.getElementById('comment-submit');
+  if (!input || !actions || !cancelBtn || !submitBtn) return; // no comment form on this page
 
   input.addEventListener('focus', () => { actions.hidden = false; });
   cancelBtn.addEventListener('click', () => { input.value = ''; actions.hidden = true; input.blur(); });
