@@ -432,22 +432,22 @@ function paletteForDepth(progress) {
 // ==========================================
 // 2. CURSOR GLOW
 // ==========================================
-(function initCursor() {
-  const glow = document.getElementById('cursor-glow');
-  if (!glow) return;
-  let mx = 0, my = 0, cx = 0, cy = 0;
+// (function initCursor() {
+//   const glow = document.getElementById('cursor-glow');
+//   if (!glow) return;
+//   let mx = 0, my = 0, cx = 0, cy = 0;
 
-  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+//   window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 
-  function animate() {
-    cx += (mx - cx) * 0.08;
-    cy += (my - cy) * 0.08;
-    glow.style.left = cx + 'px';
-    glow.style.top = cy + 'px';
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
+//   function animate() {
+//     cx += (mx - cx) * 0.08;
+//     cy += (my - cy) * 0.08;
+//     glow.style.left = cx + 'px';
+//     glow.style.top = cy + 'px';
+//     requestAnimationFrame(animate);
+//   }
+//   animate();
+// })();
 
 
 // ==========================================
