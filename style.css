@@ -41,6 +41,12 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Belt-and-suspenders: several classes (.btn-primary, .btn-secondary, etc.)
+   set their own `display`, which — being author CSS — otherwise beats the
+   browser's default `[hidden] { display: none }` rule at equal specificity.
+   This keeps `el.hidden = true` reliable everywhere on the site. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
@@ -802,7 +808,6 @@ body.surface .icon-surface { display: block; }
   margin-bottom: 14px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -864,6 +869,110 @@ body.surface .icon-surface { display: block; }
   transition: gap 0.3s var(--ease);
 }
 .projects-view-all:hover { gap: 12px; }
+
+/* ==========================================
+   Detail view — embedded PDF report
+   (project detail page: only rendered for
+   projects that set a `report` field)
+========================================== */
+/* Both states of the hero banner fill the exact same box; .detail-banner
+   itself (size, gradient, border-radius, position:relative) is defined in
+   the page-local stylesheet — these two just need to occupy 100% of it. */
+.detail-banner-media {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.detail-banner-video {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.detail-banner-video iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #000;
+}
+
+.detail-banner-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy-mid);
+}
+.detail-banner-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.detail-banner-report {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.detail-banner-report iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff; /* the PDF's own white page background */
+}
+
+.detail-report-block { margin-top: 24px; }
+.detail-report-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.detail-report-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.detail-report-openlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--foam);
+  border-bottom: 1px solid var(--foam-dim);
+  padding-bottom: 1px;
+  transition: gap 0.3s var(--ease);
+}
+.detail-report-openlink:hover { gap: 10px; }
+
+.detail-report-frame {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 82vh;
+  min-height: 480px;
+}
+.detail-report-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff; /* the PDF's own white page background */
+}
+
+@media (max-width: 900px) {
+  .detail-report-frame { height: 70vh; min-height: 420px; }
+}
+@media (max-width: 560px) {
+  .detail-report-frame { height: 60vh; min-height: 360px; }
+}
 
 @media (max-width: 720px) {
   .projects-track-wrap { gap: 8px; }

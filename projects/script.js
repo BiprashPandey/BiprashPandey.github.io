@@ -22,25 +22,27 @@ const ICONS = {
 
 const PROJECTS = [
   {
-    id: 'Pulchowk Campus Network Analysis & Design',
-    title: 'Simulation-and-Analysis-of-the-Pulchowk-Campus-Network',
-    tagline: 'LSTM-based model flagging irregular current patterns from buoy sensor data.',
+    id: 'pulchowk-campus-network',
+    title: 'Simulation and Analysis of the Pulchowk Campus Network',
+    tagline: 'Cisco Packet Tracer simulation of the campus network — dual-ISP edge, OSPF backbone, VLAN segmentation, centralized services.',
     category: 'Networks',
     thumbA: '#103449', thumbB: '#0a2030',
-    icon: 'ml',
+    icon: 'web',
     date: 'July 2026',
     stat: '★ 0',
     featured: true,
     tags: ['Cisco Packet Tracer', 'Network Simulation', 'Network Design'],
     description: "A fully functioning simulation of the Pulchowk Campus (Institute of Engineering) network, built in Cisco Packet Tracer. The project reproduces the campus's dual-ISP internet edge, firewall, three-switch OSPF backbone, VLAN-segmented departments and hostels, and centralized DHCP/DNS/login services — then critically evaluates the design and proposes concrete improvements", 
     highlights: [
-      'Custom data pipeline handling missing / irregular sensor timestamps',
-      'Stacked LSTM with attention pooling, trained on rolling windows',
-      'Anomaly threshold tuned against a held-out labelled event set',
-      'Lightweight inference service for streaming new readings'
+      'Dual-ISP internet edge with a firewall for redundancy and failover',
+      'Three-switch OSPF backbone linking every campus block',
+      'VLAN-segmented departments and hostels for traffic isolation',
+      'Centralized DHCP/DNS/login services, plus proposed security and resiliency improvements'
     ],
     github: 'https://github.com/BiprashPandey/Simulation-and-Analysis-of-the-Pulchowk-Campus-Network',
-    demo: 'https://github.com/BiprashPandey/Simulation-and-Analysis-of-the-Pulchowk-Campus-Network/blob/main/report.pdf'
+    demo: '',
+    report: 'https://cdn.jsdelivr.net/gh/BiprashPandey/Simulation-and-Analysis-of-the-Pulchowk-Campus-Network@main/report.pdf',
+    image: 'https://github.com/BiprashPandey/Simulation-and-Analysis-of-the-Pulchowk-Campus-Network/blob/main/topology.png?raw=true',
   },
   {
     id: 'devanagari-ocr',
@@ -87,6 +89,37 @@ const PROJECTS = [
 ];
 
 const byId = id => PROJECTS.find(p => p.id === id);
+
+// Converts a YouTube/Vimeo watch/share URL into its embeddable form.
+// Returns null if the URL isn't a recognized video link or couldn't be parsed —
+// callers should fall back to a plain outbound link in that case.
+function toVideoEmbedUrl(url) {
+  let u;
+  try { u = new URL(url); } catch { return null; }
+
+  if (/(^|\.)youtu\.be$/i.test(u.hostname)) {
+    const id = u.pathname.slice(1);
+    return id ? `https://www.youtube.com/embed/${id}` : null;
+  }
+  if (/(^|\.)youtube\.com$/i.test(u.hostname)) {
+    if (u.pathname === '/watch') {
+      const id = u.searchParams.get('v');
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (u.pathname.startsWith('/embed/')) return url; // already an embed URL
+    if (u.pathname.startsWith('/shorts/')) {
+      const id = u.pathname.split('/')[2];
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    return null;
+  }
+  if (/(^|\.)vimeo\.com$/i.test(u.hostname)) {
+    const id = u.pathname.split('/').filter(Boolean)[0];
+    return id && /^\d+$/.test(id) ? `https://player.vimeo.com/video/${id}` : null;
+  }
+  return null;
+}
+
 
 // ==========================================
 // Grid view
@@ -210,13 +243,82 @@ function showDetail(id) {
   if (!p) return;
   if (!viewGrid || !viewDetail) return; // no detail view on this page (e.g. homepage)
 
-  document.getElementById('detail-banner').style.setProperty('--thumb-a', p.thumbA);
-  document.getElementById('detail-banner').style.setProperty('--thumb-b', p.thumbB);
-  document.getElementById('detail-banner-icon').innerHTML = ICONS[p.icon];
-  document.getElementById('detail-banner-tag').textContent = p.category;
+  const hasDemo = !!p.demo;
+  const hasReport = !!p.report;
+  const hasImage = !!p.image;
+  const videoEmbedUrl = hasDemo ? toVideoEmbedUrl(p.demo) : null;
 
-  const playBtn = document.getElementById('detail-banner-play');
-  playBtn.href = p.demo || p.github;
+  // ---- Hero banner: four interchangeable states in the same box —
+  // a playable video embed (recognized YouTube/Vimeo demo link), a
+  // representative image (e.g. a topology diagram, via `image`), the
+  // report PDF itself, or a plain icon+link as the last resort.
+  const bannerEl = document.getElementById('detail-banner');
+  const bannerMedia = document.getElementById('detail-banner-media');
+  const bannerVideo = document.getElementById('detail-banner-video');
+  const bannerVideoIframe = document.getElementById('detail-banner-video-iframe');
+  const bannerVideoTag = document.getElementById('detail-banner-video-tag');
+  const bannerImage = document.getElementById('detail-banner-image');
+  const bannerImageImg = document.getElementById('detail-banner-image-img');
+  const bannerImageTag = document.getElementById('detail-banner-image-tag');
+  const bannerImageOpen = document.getElementById('detail-banner-image-open');
+  const bannerReport = document.getElementById('detail-banner-report');
+  const bannerReportIframe = document.getElementById('detail-banner-report-iframe');
+  const bannerReportTag = document.getElementById('detail-banner-report-tag');
+  const bannerReportOpen = document.getElementById('detail-banner-report-open');
+
+  bannerEl.style.setProperty('--thumb-a', p.thumbA);
+  bannerEl.style.setProperty('--thumb-b', p.thumbB);
+
+  function setBannerState(state) {
+    if (bannerMedia) bannerMedia.hidden = state !== 'media';
+    if (bannerVideo) bannerVideo.hidden = state !== 'video';
+    if (bannerImage) bannerImage.hidden = state !== 'image';
+    if (bannerReport) bannerReport.hidden = state !== 'report';
+    if (state !== 'video' && bannerVideoIframe) bannerVideoIframe.src = '';
+    if (state !== 'image' && bannerImageImg) bannerImageImg.src = '';
+    if (state !== 'report' && bannerReportIframe) bannerReportIframe.src = '';
+  }
+
+  let heroState;
+  if (videoEmbedUrl) {
+    // Demo is a recognized video link — play it right in the banner.
+    heroState = 'video';
+    setBannerState('video');
+    bannerVideoIframe.src = videoEmbedUrl;
+    if (bannerVideoTag) bannerVideoTag.textContent = p.category;
+  } else if (hasDemo) {
+    // Demo exists but isn't a video we know how to embed — icon + outbound link.
+    heroState = 'media';
+    setBannerState('media');
+    document.getElementById('detail-banner-icon').innerHTML = ICONS[p.icon];
+    document.getElementById('detail-banner-tag').textContent = p.category;
+    const playBtn = document.getElementById('detail-banner-play');
+    playBtn.href = p.demo;
+  } else if (hasImage) {
+    // No demo, but a representative image (e.g. topology diagram) exists.
+    heroState = 'image';
+    setBannerState('image');
+    bannerImageImg.src = p.image;
+    bannerImageImg.alt = `${p.title} — diagram`;
+    if (bannerImageTag) bannerImageTag.textContent = p.category;
+    if (bannerImageOpen) bannerImageOpen.href = p.image;
+  } else if (hasReport) {
+    // No demo or image — the report PDF becomes the hero instead of an empty icon.
+    heroState = 'report';
+    setBannerState('report');
+    bannerReportIframe.src = p.report;
+    if (bannerReportTag) bannerReportTag.textContent = p.category;
+    if (bannerReportOpen) bannerReportOpen.href = p.report;
+  } else {
+    // Nothing to show — fall back to the plain icon banner, with the
+    // play button pointing at the source instead.
+    heroState = 'media';
+    setBannerState('media');
+    document.getElementById('detail-banner-icon').innerHTML = ICONS[p.icon];
+    document.getElementById('detail-banner-tag').textContent = p.category;
+    const playBtn = document.getElementById('detail-banner-play');
+    playBtn.href = p.github;
+  }
 
   document.getElementById('detail-title').textContent = p.title;
   document.getElementById('detail-category').textContent = p.category;
@@ -224,12 +326,72 @@ function showDetail(id) {
   document.getElementById('detail-stat').textContent = p.stat;
 
   document.getElementById('detail-github').href = p.github;
+
+  // Action buttons: Source is always shown. Report and Live-demo are each
+  // conditional on the project having that field, and whichever CTA is
+  // "real" (demo if present, otherwise report) gets the primary/highlighted
+  // styling and sits last (rightmost) in the row; a missing one is fully
+  // removed rather than just visually hidden.
+  const actionsEl = document.querySelector('.detail-actions');
   const demoBtn = document.getElementById('detail-demo');
-  if (p.demo) {
+  const reportBtn = document.getElementById('detail-report');
+
+  if (hasDemo) {
     demoBtn.href = p.demo;
     demoBtn.hidden = false;
+    demoBtn.style.display = '';
+    const demoLabel = demoBtn.querySelector('span');
+    if (demoLabel) demoLabel.textContent = videoEmbedUrl ? 'Watch demo' : 'Live demo';
   } else {
     demoBtn.hidden = true;
+    demoBtn.style.display = 'none';
+  }
+
+  // The lower, in-page report viewer is only used when a demo already
+  // occupies the hero slot above — otherwise the report is already shown
+  // there, and duplicating it further down the page would be redundant.
+  const reportBlock = document.getElementById('detail-report-block');
+  const reportFrame = document.getElementById('detail-report-iframe');
+  const reportLink = document.getElementById('detail-report-openlink');
+  const showReportBelow = hasReport && heroState !== 'report';
+
+  if (reportBtn) {
+    if (hasReport) {
+      reportBtn.hidden = false;
+      reportBtn.style.display = '';
+      reportBtn.href = p.report;
+    } else {
+      reportBtn.hidden = true;
+      reportBtn.style.display = 'none';
+    }
+  }
+  if (reportBlock && reportFrame && reportLink) {
+    if (showReportBelow) {
+      reportBlock.hidden = false;
+      reportLink.href = p.report;
+      reportFrame.src = p.report;
+    } else {
+      reportBlock.hidden = true;
+      reportFrame.src = '';
+    }
+  }
+
+  // The report button takes the primary/highlighted look only when the
+  // report is actually the hero (i.e. nothing else — video/image — beat it
+  // to that slot); otherwise it stays a plain secondary button.
+  const reportIsHero = heroState === 'report';
+  if (reportBtn) {
+    reportBtn.classList.toggle('btn-primary', reportIsHero);
+    reportBtn.classList.toggle('btn-secondary', !reportIsHero);
+  }
+  demoBtn.classList.toggle('btn-primary', hasDemo);
+  demoBtn.classList.toggle('btn-secondary', !hasDemo);
+
+  // Reorder: Source, Report, Demo — a hidden one just leaves no gap.
+  if (actionsEl && reportBtn) {
+    actionsEl.appendChild(document.getElementById('detail-github'));
+    actionsEl.appendChild(reportBtn);
+    actionsEl.appendChild(demoBtn);
   }
 
   document.getElementById('detail-tags').innerHTML =
