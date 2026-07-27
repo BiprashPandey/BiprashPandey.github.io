@@ -22,25 +22,25 @@ const ICONS = {
 
 const PROJECTS = [
   {
-    id: 'ocean-current-anomaly-detector',
-    title: 'Ocean Current Anomaly Detector',
+    id: 'Pulchowk Campus Network Analysis & Design',
+    title: 'Simulation-and-Analysis-of-the-Pulchowk-Campus-Network',
     tagline: 'LSTM-based model flagging irregular current patterns from buoy sensor data.',
-    category: 'Machine Learning',
+    category: 'Networks',
     thumbA: '#103449', thumbB: '#0a2030',
     icon: 'ml',
-    date: 'Jun 2026',
-    stat: '★ 18',
+    date: 'July 2026',
+    stat: '★ 0',
     featured: true,
-    tags: ['PyTorch', 'Time Series', 'LSTM', 'Pandas'],
-    description: 'A sequence model trained on multi-year buoy telemetry (temperature, salinity, current speed) to flag anomalous readings in near real time. Built as an exploration of applying deep sequence models to noisy, irregularly-sampled sensor data rather than clean benchmark datasets.',
+    tags: ['Cisco Packet Tracer', 'Network Simulation', 'Network Design'],
+    description: "A fully functioning simulation of the Pulchowk Campus (Institute of Engineering) network, built in Cisco Packet Tracer. The project reproduces the campus's dual-ISP internet edge, firewall, three-switch OSPF backbone, VLAN-segmented departments and hostels, and centralized DHCP/DNS/login services — then critically evaluates the design and proposes concrete improvements", 
     highlights: [
       'Custom data pipeline handling missing / irregular sensor timestamps',
       'Stacked LSTM with attention pooling, trained on rolling windows',
       'Anomaly threshold tuned against a held-out labelled event set',
       'Lightweight inference service for streaming new readings'
     ],
-    github: 'https://github.com/biprashpandey',
-    demo: ''
+    github: 'https://github.com/BiprashPandey/Simulation-and-Analysis-of-the-Pulchowk-Campus-Network',
+    demo: 'https://github.com/BiprashPandey/Simulation-and-Analysis-of-the-Pulchowk-Campus-Network/blob/main/report.pdf'
   },
   {
     id: 'devanagari-ocr',
