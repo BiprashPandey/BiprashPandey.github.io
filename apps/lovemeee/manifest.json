@@ -1,21 +1,22 @@
 {
   "name": "LOVE MEEE",
-  "short_name": "SimpleApp",
-  "start_url": "/",
+  "short_name": "LOVE MEEE",
+  "start_url": "/apps/lovemeee/",
+  "scope": "/apps/lovemeee/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
-  "description": "A simple web application manifest example.",
+  "background_color": "#09090b",
+  "theme_color": "#a855f7",
   "icons": [
     {
-      "src": "/images/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+      "src": "/apps/lovemeee/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
-      "src": "/images/icon-512.png",
+      "src": "/apps/lovemeee/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "sizes": "512x512"
+      "purpose": "maskable"
     }
   ]
 }
