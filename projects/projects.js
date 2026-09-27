@@ -1,19 +1,19 @@
 // ==========================================
 // FEATURED PROJECTS CAROUSEL (homepage only)
 //
-// Reads the shared PROJECTS / ICONS globals
-// defined in projects/script.js (loaded right
-// before this file) — no data duplication.
+// Reads the shared PROJECTS global defined in
+// projects/script.js (loaded right before this
+// file) — no data duplication.
 //
 // Desktop: 3 cards per view. Tablet: 2.
 // Mobile (≤720px): 1 card per view.
-// Autoplay + arrows + dots + swipe, all
-// operating on "pages" of `perView` cards.
+// Arrows + dots + swipe, all operating on
+// "pages" of `perView` cards. No autoplay.
 // ==========================================
 (function initProjectsCarousel() {
   const section = document.getElementById('projects-carousel');
   if (!section) return; // this page has no featured-projects widget
-  if (typeof PROJECTS === 'undefined' || typeof ICONS === 'undefined') return;
+  if (typeof PROJECTS === 'undefined') return;
 
   const track = document.getElementById('projects-track');
   const dotsEl = document.getElementById('projects-dots');
@@ -32,12 +32,12 @@
   }
   if (emptyEl) emptyEl.hidden = true;
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   function cardsPerView() {
-    const w = window.innerWidth;
-    if (w <= 720) return 1;
-    if (w <= 1080) return 2;
+    // Inside a pinned flowchart node-box the card width is decoupled from
+    // the viewport — measure the carousel's own width instead of the window.
+    const host = track && track.closest('.node-box') ? viewport.clientWidth : window.innerWidth;
+    if (host <= 720) return 1;
+    if (host <= 1080) return 2;
     return 3;
   }
 
@@ -50,18 +50,20 @@
   }
 
   function cardMarkup(p) {
+    const media = p.image
+      ? `<img class="project-card-img" src="${p.image}" alt="${p.title}" loading="lazy" decoding="async">`
+      : `<span class="project-card-fill">${p.title}</span>`;
     return `
       <article class="project-card" data-id="${p.id}" tabindex="0" role="link" aria-label="Open ${p.title}">
         <div class="project-card-surface">
-          <div class="project-card-thumb" style="--thumb-a:${p.thumbA};--thumb-b:${p.thumbB}">
+          <div class="project-card-media">
             ${p.featured ? '<span class="project-card-featured">Featured</span>' : ''}
-            <span class="project-card-icon">${ICONS[p.icon] || ''}</span>
+            ${media}
           </div>
           <div class="project-card-body">
             <div class="project-card-meta">${p.category} · ${p.date}</div>
             <h3 class="project-card-title">${p.title}</h3>
             <p class="project-card-tagline">${p.tagline}</p>
-            <div class="project-card-tags">${p.tags.slice(0, 3).map(t => `<span>${t}</span>`).join('')}</div>
           </div>
         </div>
       </article>
@@ -127,8 +129,8 @@
 
   function restart() {
     clearInterval(timer);
-    if (reduceMotion || totalPages() < 2) return;
-    timer = setInterval(next, 6000);
+    // Autoplay is intentionally off — the carousel is driven by
+    // arrows, dots, and swipe only (see design_guidelines.md §5).
   }
 
   function handleResize() {

@@ -79,22 +79,13 @@
       }, { rootMargin: '200px 0px' })
     : null;
 
-  const revealObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-
   function buildGrid() {
     const frag = document.createDocumentFragment();
 
     photos.forEach((file, i) => {
       const item = document.createElement('button');
       item.type = 'button';
-      item.className = 'gallery-item reveal';
+      item.className = 'gallery-item';
       item.setAttribute('aria-label', `Open photo ${i + 1}`);
 
       const img = document.createElement('img');
@@ -117,7 +108,6 @@
     });
 
     grid.appendChild(frag);
-    grid.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
   }
 
   fetch(MANIFEST_URL)

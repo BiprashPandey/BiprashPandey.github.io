@@ -4,68 +4,43 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Projects — Biprash Pandey</title>
-<meta name="description" content="Project log of Biprash Pandey — machine learning, deep learning and systems work." />
+<meta name="description" content="Projects by Biprash Pandey — machine learning, computer vision, and systems work." />
 <link rel="stylesheet" href="../style.css" />
 <link rel="stylesheet" href="style.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.documentElement.dataset.theme = localStorage.getItem('theme') || 'light';</script>
 </head>
 <body class="projects-page">
 
-  <!-- Ocean canvas background — identical to homepage -->
-  <canvas id="ocean-canvas"></canvas>
-  <div class="ocean-vignette"></div>
-  <div class="depth-overlay" id="depth-overlay"></div>
-
-  <!-- Cursor -->
-  <div class="cursor-glow" id="cursor-glow"></div>
-
-  <!-- Depth gauge -->
-  <div class="depth-gauge" id="depth-gauge">
-    <span class="gauge-meters" id="gauge-meters">0 m</span>
-    <span class="gauge-zone" id="gauge-zone">Sunlight Zone</span>
-  </div>
-
   <!-- Navigation -->
   <nav class="nav">
-    <a href=".." class="nav-logo">
-      <span class="logo-mark">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M2 17c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0M2 12c2 1.3 4 1.3 6 0s4-1.3 6 0 4 1.3 6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      </span>
-      <span class="logo-text">Biprash Pandey</span>
-    </a>
+    <a href=".." class="nav-logo">Biprash Pandey</a>
 
     <div class="nav-links">
-      <a href="../about" class="nav-link"><span class="nav-idx">01</span>About</a>
-      <a href="../skills" class="nav-link"><span class="nav-idx">02</span>Skills</a>
-      <a href="../projects" class="nav-link active"><span class="nav-idx">03</span>Work</a>
-      <a href="../journey" class="nav-link"><span class="nav-idx">04</span>Journey</a>
-      <a href="../contact" class="nav-link"><span class="nav-idx">05</span>Contact</a>
+      <a href="../#work" class="nav-link active">Work</a>
+      <a href="../#experience" class="nav-link">Experience</a>
+      <a href="../gallery/" class="nav-link">Photography</a>
     </div>
 
     <div class="nav-right">
+      <button class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Toggle theme">
+        <svg class="theme-icon theme-icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="theme-icon theme-icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
       <a href="../" class="nav-back">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Back to portfolio</span>
       </a>
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle day / night dive">
-        <span class="theme-toggle-track">
-          <span class="theme-toggle-thumb">
-            <svg class="icon-depth" width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" fill="currentColor"/></svg>
-            <svg class="icon-surface" width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </span>
-        </span>
-      </button>
     </div>
   </nav>
 
   <!-- ================= BROWSE VIEW ================= -->
   <main class="view view-grid" id="view-grid">
     <div class="grid-header">
-      <span class="section-eyebrow">Cargo hold</span>
-      <h1 class="section-title">Project Log</h1>
-      <p class="section-sub">Case studies from coursework, research and personal builds — click any entry to open the full log.</p>
+      <h1 class="section-title">What I've built so far.</h1>
+      <p class="section-sub">A handful of projects with the boring details left in.</p>
 
       <div class="filter-row" id="filter-row"></div>
     </div>
@@ -87,8 +62,7 @@
         <div class="detail-banner" id="detail-banner">
           <!-- Shown when the demo is a plain link (not a recognized video URL) -->
           <div class="detail-banner-media" id="detail-banner-media">
-            <div class="detail-banner-icon" id="detail-banner-icon"></div>
-            <span class="detail-banner-tag" id="detail-banner-tag"></span>
+            <span class="detail-banner-title" id="detail-banner-title"></span>
             <a class="detail-banner-play" id="detail-banner-play" target="_blank" rel="noopener" aria-label="Open live demo">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
             </a>
@@ -211,7 +185,7 @@
     <div class="footer-content">
       <div class="footer-left">
         <span class="footer-logo">Biprash Pandey</span>
-        <span class="footer-copy">© 2026. Built with a steady current and too much coffee.</span>
+        <span class="footer-copy">© 2026 Biprash Pandey</span>
       </div>
       <a href="#view-grid" class="footer-right">Back to top ↑</a>
     </div>

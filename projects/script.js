@@ -4,35 +4,33 @@
 // This file is shared: it's loaded on the
 // standalone /projects/ page (full browse +
 // detail views) AND on the homepage (which
-// only needs the PROJECTS/ICONS data — see
+// only needs the PROJECTS data — see
 // projects/projects.js for the homepage
 // carousel that reads them). All DOM lookups
 // below are guarded so this is safe on pages
 // that don't have the grid/detail markup.
 //
 // EDIT ME — keep titles/taglines here in sync
-// with the slides array in the homepage's
-// script.js (the hero "Latest Transmission" widget).
+// with the cards rendered on the homepage.
+//
+// NOTE — project imagery: cards show a real
+// screenshot when the project has an `image`
+// field, otherwise a plain muted fill with the
+// project name. Collecting real screenshots
+// for each project is the highest-leverage
+// follow-up (see design_guidelines.md §6).
 // ==========================================
-const ICONS = {
-  ml: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/></svg>',
-  cv: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>',
-  web: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/><path d="M2.5 12h19M12 2.5c2.6 2.7 4 6 4 9.5s-1.4 6.8-4 9.5c-2.6-2.7-4-6-4-9.5s1.4-6.8 4-9.5z" stroke="currentColor" stroke-width="1.6"/></svg>'
-};
-
 const PROJECTS = [
   {
     id: 'pulchowk-campus-network',
     title: 'Simulation and Analysis of the Pulchowk Campus Network',
-    tagline: 'Cisco Packet Tracer simulation of the campus network — dual-ISP edge, OSPF backbone, VLAN segmentation, centralized services.',
+    tagline: 'Rebuilt the Pulchowk campus network in Packet Tracer — dual-ISP edge, OSPF backbone, VLANs, and centralized services.',
     category: 'Networks',
-    thumbA: '#103449', thumbB: '#0a2030',
-    icon: 'web',
     date: 'July 2026',
     stat: '★ 0',
     featured: true,
     tags: ['Cisco Packet Tracer', 'Network Simulation', 'Network Design'],
-    description: "A fully functioning simulation of the Pulchowk Campus (Institute of Engineering) network, built in Cisco Packet Tracer. The project reproduces the campus's dual-ISP internet edge, firewall, three-switch OSPF backbone, VLAN-segmented departments and hostels, and centralized DHCP/DNS/login services — then critically evaluates the design and proposes concrete improvements", 
+    description: "I rebuilt the Pulchowk Campus (Institute of Engineering) network in Cisco Packet Tracer — the whole thing, from the dual-ISP internet edge and firewall down to the VLAN-segmented departments and hostels. The write-up ends with the design's weak spots and the fixes I'd actually make.",
     highlights: [
       'Dual-ISP internet edge with a firewall for redundancy and failover',
       'Three-switch OSPF backbone linking every campus block',
@@ -47,15 +45,13 @@ const PROJECTS = [
   {
     id: 'devanagari-ocr',
     title: 'Handwritten Devanagari OCR',
-    tagline: 'CNN pipeline for recognizing handwritten Nepali script, trained from scratch.',
+    tagline: 'A CNN that reads handwritten Devanagari, trained from scratch instead of fine-tuned.',
     category: 'Computer Vision',
-    thumbA: '#123a2f', thumbB: '#0b2420',
-    icon: 'cv',
     date: 'Feb 2026',
     stat: '★ 26',
     featured: true,
     tags: ['CNN', 'OpenCV', 'Python', 'NumPy'],
-    description: 'An end-to-end optical character recognition system for handwritten Devanagari script, built and trained from scratch rather than fine-tuned from an existing model. Covers everything from stroke-level preprocessing to a custom convolutional classifier.',
+    description: 'I built an OCR system for handwritten Devanagari from scratch — no pre-trained model involved. It goes from stroke-level preprocessing and glyph segmentation up to a convolutional classifier, and ends with a web demo where you can write a character and see it read back.',
     highlights: [
       'Custom-labelled dataset of handwritten Devanagari characters',
       'Preprocessing pipeline: deskew, normalize stroke width, segment glyphs',
@@ -68,15 +64,13 @@ const PROJECTS = [
   {
     id: 'campus-bus-tracker',
     title: 'Campus Bus Tracker',
-    tagline: 'Real-time GPS tracking web app for Pulchowk Campus shuttle routes.',
+    tagline: 'Tracks Pulchowk shuttle routes in real time over GPS and WebSockets.',
     category: 'Web Systems',
-    thumbA: '#3a2f16', thumbB: '#24190c',
-    icon: 'web',
     date: 'Nov 2025',
     stat: '★ 9',
     featured: false,
     tags: ['React', 'Node.js', 'WebSocket', 'MongoDB'],
-    description: 'A live shuttle-tracking web app for campus routes — drivers broadcast location from a lightweight companion page, and students see live positions and ETAs on a map without refreshing.',
+    description: "A live tracker for the campus shuttle routes. Drivers broadcast location from a lightweight companion page, and students see live positions and ETAs on a map — updated by a WebSocket, so nobody has to refresh.",
     highlights: [
       'WebSocket layer for sub-second location broadcasts',
       'Route ETA estimation from historical trip timing',
@@ -89,6 +83,15 @@ const PROJECTS = [
 ];
 
 const byId = id => PROJECTS.find(p => p.id === id);
+
+// Renders the media slot a project card shares: its real output image
+// if one exists, otherwise a plain muted fill with the project name.
+function mediaMarkup(p, fillClass) {
+  if (p.image) {
+    return `<img loading="lazy" decoding="async" alt="${p.title}" src="${p.image}" />`;
+  }
+  return `<span class="${fillClass}">${p.title}</span>`;
+}
 
 // Converts a YouTube/Vimeo watch/share URL into its embeddable form.
 // Returns null if the URL isn't a recognized video link or couldn't be parsed —
@@ -146,15 +149,13 @@ function renderFilters() {
 function renderGrid() {
   if (!gridEl) return; // no browse grid on this page (e.g. homepage)
   const list = activeFilter === 'All' ? PROJECTS : PROJECTS.filter(p => p.category === activeFilter);
-  gridEl.innerHTML = list.map((p, i) => `
-    <article class="yt-card" data-id="${p.id}" style="--i:${i}">
-      <div class="yt-thumb" style="--thumb-a:${p.thumbA};--thumb-b:${p.thumbB}">
+  gridEl.innerHTML = list.map(p => `
+    <article class="yt-card" data-id="${p.id}">
+      <div class="yt-media" role="img" aria-label="${p.title}">
         ${p.featured ? '<span class="yt-thumb-featured">Featured</span>' : ''}
-        <span class="yt-thumb-icon">${ICONS[p.icon]}</span>
-        <span class="yt-thumb-badge">${p.tags[0]}</span>
+        ${mediaMarkup(p, 'yt-media-fill')}
       </div>
       <div class="yt-card-body">
-        <div class="yt-card-avatar">BP</div>
         <div class="yt-card-info">
           <h3 class="yt-card-title">${p.title}</h3>
           <div class="yt-card-meta">${p.category} · ${p.date}</div>
@@ -226,7 +227,7 @@ function renderUpNext(currentId) {
   if (!el) return;
   el.innerHTML = others.map(p => `
     <div class="up-next-item" data-id="${p.id}">
-      <div class="up-next-thumb" style="--thumb-a:${p.thumbA};--thumb-b:${p.thumbB}">${ICONS[p.icon]}</div>
+      <div class="up-next-thumb">${mediaMarkup(p, 'up-next-thumb-fill')}</div>
       <div class="up-next-info">
         <div class="up-next-title">${p.title}</div>
         <div class="up-next-meta">${p.category} · ${p.date}</div>
@@ -248,10 +249,11 @@ function showDetail(id) {
   const hasImage = !!p.image;
   const videoEmbedUrl = hasDemo ? toVideoEmbedUrl(p.demo) : null;
 
-  // ---- Hero banner: four interchangeable states in the same box —
+  // ---- Hero banner: interchangeable states in the same box —
   // a playable video embed (recognized YouTube/Vimeo demo link), a
   // representative image (e.g. a topology diagram, via `image`), the
-  // report PDF itself, or a plain icon+link as the last resort.
+  // report PDF itself, or a plain fill with the project title as the
+  // last resort.
   const bannerEl = document.getElementById('detail-banner');
   const bannerMedia = document.getElementById('detail-banner-media');
   const bannerVideo = document.getElementById('detail-banner-video');
@@ -265,9 +267,6 @@ function showDetail(id) {
   const bannerReportIframe = document.getElementById('detail-banner-report-iframe');
   const bannerReportTag = document.getElementById('detail-banner-report-tag');
   const bannerReportOpen = document.getElementById('detail-banner-report-open');
-
-  bannerEl.style.setProperty('--thumb-a', p.thumbA);
-  bannerEl.style.setProperty('--thumb-b', p.thumbB);
 
   function setBannerState(state) {
     if (bannerMedia) bannerMedia.hidden = state !== 'media';
@@ -287,11 +286,10 @@ function showDetail(id) {
     bannerVideoIframe.src = videoEmbedUrl;
     if (bannerVideoTag) bannerVideoTag.textContent = p.category;
   } else if (hasDemo) {
-    // Demo exists but isn't a video we know how to embed — icon + outbound link.
+    // Demo exists but isn't a video we know how to embed — title + outbound link.
     heroState = 'media';
     setBannerState('media');
-    document.getElementById('detail-banner-icon').innerHTML = ICONS[p.icon];
-    document.getElementById('detail-banner-tag').textContent = p.category;
+    document.getElementById('detail-banner-title').textContent = p.title;
     const playBtn = document.getElementById('detail-banner-play');
     playBtn.href = p.demo;
   } else if (hasImage) {
@@ -310,12 +308,10 @@ function showDetail(id) {
     if (bannerReportTag) bannerReportTag.textContent = p.category;
     if (bannerReportOpen) bannerReportOpen.href = p.report;
   } else {
-    // Nothing to show — fall back to the plain icon banner, with the
-    // play button pointing at the source instead.
+    // Nothing to show — plain fill with the title, outbound link to source.
     heroState = 'media';
     setBannerState('media');
-    document.getElementById('detail-banner-icon').innerHTML = ICONS[p.icon];
-    document.getElementById('detail-banner-tag').textContent = p.category;
+    document.getElementById('detail-banner-title').textContent = p.title;
     const playBtn = document.getElementById('detail-banner-play');
     playBtn.href = p.github;
   }
@@ -395,7 +391,7 @@ function showDetail(id) {
   }
 
   document.getElementById('detail-tags').innerHTML =
-    p.tags.map(t => `<span class="skill-tag level-mid">${t}</span>`).join('');
+    p.tags.map(t => `<span class="skill-tag">${t}</span>`).join('');
 
   document.getElementById('detail-description').textContent = p.description;
   document.getElementById('detail-highlights').innerHTML =

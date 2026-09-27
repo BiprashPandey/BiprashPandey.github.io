@@ -1,799 +1,276 @@
-/* ==========================================
-   script.js — Ocean Portfolio
-   The page IS the ocean: scroll = descend.
-========================================== */
+const nav = document.querySelector('.nav');
 
-// Shared state so the scroll listener and the canvas loop
-// (separate closures) can both read the current "depth".
-const OceanState = { depth: 0, meters: 0, zoneName: 'Sunlight Zone' };
+const themeButtons = document.querySelectorAll('.theme-toggle');
 
-// ==========================================
-// 1. DEPTH ZONES
-// ==========================================
-// Each stop defines the water colour (top/bottom of the visible
-// column) and the real-world depth band it represents. Progress
-// is 0 (surface) → 1 (bottom of the page).
-const ZONES = [
-  { at: 0.00, top: [46, 190, 205], bottom: [16, 110, 145], meters: 0,     name: 'Sunlight Zone' },
-  { at: 0.16, top: [27, 140, 168], bottom: [14, 80, 112],  meters: 200,   name: 'Sunlight Zone' },
-  { at: 0.38, top: [16, 86, 118],  bottom: [9, 50, 76],    meters: 1000,  name: 'Twilight Zone' },
-  { at: 0.60, top: [9, 46, 72],    bottom: [5, 24, 42],    meters: 4000,  name: 'Midnight Zone' },
-  { at: 0.80, top: [4, 18, 32],    bottom: [2, 9, 18],     meters: 6000,  name: 'Abyssal Zone' },
-  { at: 1.00, top: [2, 7, 14],     bottom: [0, 2, 6],      meters: 11000, name: 'The Trench' }
-];
-
-function lerp(a, b, t) { return a + (b - a) * t; }
-function lerpColor(a, b, t) {
-  return [Math.round(lerp(a[0], b[0], t)), Math.round(lerp(a[1], b[1], t)), Math.round(lerp(a[2], b[2], t))];
+function updateThemeButtons() {
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  themeButtons.forEach((button) => {
+    button.setAttribute('aria-label', `Switch to ${isDark ? 'light' : 'dark'} theme`);
+    button.setAttribute('aria-pressed', String(isDark));
+  });
 }
 
-function zoneAt(progress) {
-  let i = 0;
-  while (i < ZONES.length - 2 && progress > ZONES[i + 1].at) i++;
-  const a = ZONES[i], b = ZONES[i + 1];
-  const span = b.at - a.at || 1;
-  const t = Math.min(1, Math.max(0, (progress - a.at) / span));
-  return {
-    top: lerpColor(a.top, b.top, t),
-    bottom: lerpColor(a.bottom, b.bottom, t),
-    meters: Math.round(lerp(a.meters, b.meters, t)),
-    name: t < 0.5 ? a.name : b.name
+themeButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = nextTheme;
+    localStorage.setItem('theme', nextTheme);
+    updateThemeButtons();
+  });
+});
+
+updateThemeButtons();
+
+function updateNav() {
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 20);
+}
+
+window.addEventListener('scroll', updateNav, { passive: true });
+updateNav();
+
+function debounce(fn, wait) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), wait);
   };
 }
 
-// Fish palettes shift with depth: bright reef colours up top,
-// fading to cool blues, then to sparse bioluminescence below.
-function paletteForDepth(progress) {
-  if (progress < 0.18) {
-    return { colors: ['#ff9142', '#ffd23d', '#4fc3f7', '#ff6b81', '#7ee787'], types: ['round', 'long'], glowChance: 0.02, density: 1 };
-  }
-  if (progress < 0.42) {
-    return { colors: ['#5fa8c9', '#8fd8c9', '#7789c9', '#d9b97c', '#6fc9b0'], types: ['round', 'long'], glowChance: 0.18, density: 0.9 };
-  }
-  if (progress < 0.66) {
-    return { colors: ['#2fb39e', '#3d6fd1', '#8a5fd1', '#38c6b0'], types: ['round', 'jelly'], glowChance: 0.55, density: 0.75 };
-  }
-  return { colors: ['#26e0c2', '#4d7cff', '#7f5fff'], types: ['jelly', 'round'], glowChance: 0.9, density: 0.5 };
+// ==========================================
+// Flowchart pinned stage (homepage only)
+// ==========================================
+const track = document.getElementById('track');
+const boxes = [...document.querySelectorAll('.node-box')];
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stageNarrow = window.matchMedia('(max-width: 900px)');
+
+function stageEnabled() {
+  return !!(track && boxes.length) && !stageNarrow.matches;
 }
 
-// ==========================================
-// 2. OCEAN CANVAS — sky, water, fish
-// ==========================================
-(function initOcean() {
-  const canvas = document.getElementById('ocean-canvas');
-  const ctx = canvas.getContext('2d');
-  let width, height, time = 0, particles, fish, stars;
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function remap(v, i0, i1, o0, o1) { return clamp((v - i0) / (i1 - i0), 0, 1) * (o1 - o0) + o0; }
 
-  function isNight() { return !document.body.classList.contains('surface'); }
-
-  function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+function renderStage() {
+  if (!track || !boxes.length) return;
+  if (!stageEnabled()) {
+    // Mobile/static fallback: clear any inline stage styles.
+    boxes.forEach((box) => {
+      box.style.opacity = '';
+      box.style.transform = '';
+      box.style.pointerEvents = '';
+    });
+    return;
   }
+  const n = boxes.length;
+  const vh = window.innerHeight;
+  const total = track.offsetHeight - vh;
+  const scrolled = clamp(-track.getBoundingClientRect().top, 0, Math.max(total, 0));
+  const p = total > 0 ? (scrolled / total) * n : 0;
+  const idx = clamp(Math.floor(p), 0, n - 1);
+  const local = clamp(p - idx, 0, 1);
 
-  function createStars() {
-    stars = [];
-    for (let i = 0; i < 70; i++) {
-      stars.push({
-        x: Math.random() * width,
-        y: Math.random() * 220,
-        r: Math.random() * 1.3 + 0.3,
-        phase: Math.random() * Math.PI * 2
-      });
-    }
-  }
+  const travel = reduceMotion ? 0 : Math.round(window.innerHeight * 0.35);
 
-  function createParticles() {
-    particles = [];
-    const count = Math.round((width * height) / 30000);
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        r: Math.random() * 1.5 + 0.4,
-        speed: Math.random() * 0.22 + 0.06,
-        drift: Math.random() * 0.4 - 0.2,
-        phase: Math.random() * Math.PI * 2
-      });
-    }
-  }
-
-  function createFish() {
-    fish = [];
-    const count = Math.max(6, Math.round((width * height) / 145000));
-    for (let i = 0; i < count; i++) fish.push(makeFish());
-  }
-
-  function makeFish(edgeSpawn) {
-    const p = paletteForDepth(OceanState.depth);
-    const dir = Math.random() > 0.5 ? 1 : -1;
-    const type = p.types[Math.random() < 0.7 ? 0 : (p.types.length > 1 ? 1 : 0)];
-    const scale = (Math.random() * 0.7 + 0.55) * (type === 'jelly' ? 1.1 : 1);
-    const color = p.colors[Math.floor(Math.random() * p.colors.length)];
-    return {
-      type,
-      x: edgeSpawn ? (dir > 0 ? -50 : width + 50) : Math.random() * width,
-      y: height * (0.12 + Math.random() * 0.82),
-      vx: type === 'jelly' ? dir * (Math.random() * 0.12 + 0.03) : dir * (Math.random() * 0.55 + 0.35) * scale,
-      dir,
-      scale,
-      color,
-      tailPhase: Math.random() * Math.PI * 2,
-      bobPhase: Math.random() * Math.PI * 2,
-      glow: Math.random() < p.glowChance,
-      visibility: Math.random()
+  boxes.forEach((box, i) => {
+    const lineOut = box.querySelector('.link-line.out');
+    const lineIn = box.querySelector('.link-line.in');
+    const dotOut = box.querySelector('.link-dot:not(.in)');
+    const dotIn = box.querySelector('.link-dot.in');
+    const setOut = (f) => {
+      if (lineOut) {
+        lineOut.style.setProperty('--fill', `${f * 100}%`);
+        if (dotOut) dotOut.style.setProperty('--dot-opacity', f > 0.85 ? 1 : 0);
+      }
     };
-  }
-
-  function waveY(x, t, amp, freq, phase, base) {
-    return base + Math.sin(x * freq + t + phase) * amp + Math.sin(x * freq * 0.5 + t * 0.6) * amp * 0.4;
-  }
-
-  function hexToRgba(hex, a) {
-    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
-
-  function drawSky(horizonY) {
-    if (horizonY <= -40) return;
-    const skyH = Math.max(0, horizonY + 40);
-    const sky = ctx.createLinearGradient(0, 0, 0, horizonY);
-    if (isNight()) {
-      sky.addColorStop(0, '#040814');
-      sky.addColorStop(1, '#0c1c30');
-    } else {
-      sky.addColorStop(0, '#bfe6f2');
-      sky.addColorStop(1, '#eaf6ee');
-    }
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, width, Math.max(0, horizonY));
-
-    if (isNight()) {
-      stars.forEach(s => {
-        const tw = 0.5 + Math.sin(time * 1.4 + s.phase) * 0.5;
-        if (s.y < horizonY) {
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255,255,255,${(0.35 + tw * 0.55).toFixed(2)})`;
-          ctx.fill();
-        }
-      });
-
-      const moonR = 42;
-      const moonX = width * 0.82, moonY = Math.min(horizonY - moonR - 18, 90);
-      const moonGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, moonR * 3.2);
-      moonGlow.addColorStop(0, 'rgba(210,222,240,0.28)');
-      moonGlow.addColorStop(1, 'rgba(210,222,240,0)');
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, moonR * 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = moonGlow;
-      ctx.fill();
-
-      // base disc
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
-      ctx.fillStyle = '#e8edf5';
-      ctx.fill();
-
-      // craters (clipped to the disc so nothing spills outside it)
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
-      ctx.clip();
-      ctx.fillStyle = 'rgba(170,183,206,0.55)';
-      [[-0.32, -0.28, 0.15], [-0.48, 0.15, 0.1], [-0.05, 0.38, 0.08], [0.22, -0.35, 0.07]].forEach(([dx, dy, r]) => {
-        ctx.beginPath();
-        ctx.arc(moonX + dx * moonR, moonY + dy * moonR, r * moonR, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // soft terminator shading for a gentle waning-gibbous look, cut cleanly
-      // out of the disc via compositing so it can never paint outside it
-      ctx.globalCompositeOperation = 'destination-in';
-      const shade = ctx.createRadialGradient(moonX - moonR * 0.3, moonY, 0, moonX, moonY, moonR * 1.4);
-      shade.addColorStop(0, 'rgba(255,255,255,1)');
-      shade.addColorStop(0.75, 'rgba(255,255,255,1)');
-      shade.addColorStop(1, 'rgba(255,255,255,0.6)');
-      ctx.fillStyle = shade;
-      ctx.fillRect(moonX - moonR, moonY - moonR, moonR * 2, moonR * 2);
-      ctx.restore();
-    } else {
-      const sunR = 46;
-      const sunX = width * 0.82, sunY = Math.min(horizonY - sunR - 18, 90);
-      const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 3.2);
-      glow.addColorStop(0, 'rgba(255,214,140,0.55)');
-      glow.addColorStop(1, 'rgba(255,214,140,0)');
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, sunR * 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = glow;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2, false);
-      ctx.fillStyle = '#ffe3a8';
-      ctx.fill();
-    }
-  }
-
-  function drawWaterSurfaceLine(horizonY) {
-    if (horizonY < -20 || horizonY > height + 20) return;
-    ctx.beginPath();
-    ctx.moveTo(0, horizonY);
-    for (let x = 0; x <= width; x += 14) {
-      ctx.lineTo(x, waveY(x, time * 0.6, 5, 0.01, 0, horizonY));
-    }
-    ctx.lineTo(width, horizonY + 6);
-    ctx.lineTo(0, horizonY + 6);
-    ctx.closePath();
-    ctx.fillStyle = isNight() ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.35)';
-    ctx.fill();
-  }
-
-  function drawWaveLayer(baseline, amp, freq, speed, phase, color) {
-    ctx.beginPath();
-    ctx.moveTo(0, height);
-    ctx.lineTo(0, waveY(0, time * speed, amp, freq, phase, baseline));
-    for (let x = 0; x <= width; x += 16) {
-      ctx.lineTo(x, waveY(x, time * speed, amp, freq, phase, baseline));
-    }
-    ctx.lineTo(width, height);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
-  }
-
-  function drawRoundFish(f, fillColor) {
-    const tailSwing = Math.sin(time * 6 + f.tailPhase) * 0.35;
-    ctx.beginPath();
-    ctx.moveTo(-1.1, 0);
-    ctx.quadraticCurveTo(-0.6, -0.62, 0.55, -0.4);
-    ctx.quadraticCurveTo(1.15, -0.16, 1.5, 0);
-    ctx.quadraticCurveTo(1.15, 0.16, 0.55, 0.4);
-    ctx.quadraticCurveTo(-0.6, 0.62, -1.1, 0);
-    ctx.closePath();
-    ctx.fillStyle = fillColor;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(-1.05, 0);
-    ctx.lineTo(-1.75 + tailSwing * 0.3, -0.5);
-    ctx.lineTo(-1.35, 0);
-    ctx.lineTo(-1.75 + tailSwing * 0.3, 0.5);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(0.95, -0.06, 0.055, 0, Math.PI * 2);
-    ctx.fillStyle = isNight() ? 'rgba(255,255,255,0.6)' : 'rgba(13,34,51,0.5)';
-    ctx.fill();
-  }
-
-  function drawLongFish(f, fillColor) {
-    const tailSwing = Math.sin(time * 7 + f.tailPhase) * 0.4;
-    ctx.beginPath();
-    ctx.moveTo(-1.5, 0);
-    ctx.quadraticCurveTo(-0.8, -0.28, 0.9, -0.16);
-    ctx.quadraticCurveTo(1.5, -0.06, 1.75, 0);
-    ctx.quadraticCurveTo(1.5, 0.06, 0.9, 0.16);
-    ctx.quadraticCurveTo(-0.8, 0.28, -1.5, 0);
-    ctx.closePath();
-    ctx.fillStyle = fillColor;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(-1.45, 0);
-    ctx.lineTo(-2.0 + tailSwing * 0.25, -0.28);
-    ctx.lineTo(-1.75, 0);
-    ctx.lineTo(-2.0 + tailSwing * 0.25, 0.28);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  function drawJelly(f, fillColor) {
-    const pulse = 0.85 + Math.sin(time * 2.2 + f.bobPhase) * 0.15;
-    ctx.save();
-    ctx.scale(1, pulse);
-    ctx.beginPath();
-    ctx.arc(0, 0, 1, Math.PI, 0);
-    ctx.closePath();
-    ctx.fillStyle = fillColor;
-    ctx.globalAlpha = 0.75;
-    ctx.fill();
-    ctx.restore();
-
-    ctx.globalAlpha = 0.4;
-    ctx.strokeStyle = fillColor;
-    ctx.lineWidth = 0.06;
-    for (let t = -0.7; t <= 0.7; t += 0.35) {
-      const sway = Math.sin(time * 2 + f.bobPhase + t * 4) * 0.25;
-      ctx.beginPath();
-      ctx.moveTo(t, 0.05);
-      ctx.quadraticCurveTo(t + sway * 0.5, 1.1, t + sway, 2.1);
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  function drawFish(f) {
-    const bob = f.type === 'jelly' ? Math.sin(time * 0.6 + f.bobPhase) * 6 : Math.sin(time * 1.2 + f.bobPhase) * 4;
-    const alpha = f.type === 'jelly' ? 0.6 : 0.85;
-    const fillColor = hexToRgba(f.color, alpha);
-
-    ctx.save();
-    ctx.translate(f.x, f.y + bob);
-    const s = f.type === 'jelly' ? f.scale * 10 : f.scale * 9;
-    ctx.scale(f.dir * s, s);
-
-    if (f.type === 'round') drawRoundFish(f, fillColor);
-    else if (f.type === 'long') drawLongFish(f, fillColor);
-    else drawJelly(f, fillColor);
-
-    ctx.restore();
-
-    if (f.glow) {
-      const glowAlpha = Math.min(0.55, 0.12 + OceanState.depth * 0.5);
-      const g = ctx.createRadialGradient(f.x, f.y + bob, 0, f.x, f.y + bob, 46 * f.scale);
-      g.addColorStop(0, hexToRgba(f.color, glowAlpha));
-      g.addColorStop(1, hexToRgba(f.color, 0));
-      ctx.beginPath();
-      ctx.arc(f.x, f.y + bob, 46 * f.scale, 0, Math.PI * 2);
-      ctx.fillStyle = g;
-      ctx.fill();
-    }
-  }
-
-  function drawFrame() {
-    const zone = zoneAt(OceanState.depth);
-    const horizonY = 132 - window.scrollY * 0.75;
-
-    ctx.clearRect(0, 0, width, height);
-
-    // water body
-    const grad = ctx.createLinearGradient(0, Math.max(0, horizonY), 0, height);
-    grad.addColorStop(0, `rgb(${zone.top.join(',')})`);
-    grad.addColorStop(1, `rgb(${zone.bottom.join(',')})`);
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, Math.max(0, horizonY), width, height);
-
-
-
-    const wl1 = `rgba(255,255,255,${(0.05 + (1 - OceanState.depth) * 0.05).toFixed(3)})`;
-    const wl2 = `rgba(255,255,255,${(0.03 + (1 - OceanState.depth) * 0.03).toFixed(3)})`;
-    drawWaveLayer(Math.max(horizonY, -40) + 46, 24, 0.0032, 0.55, 0, wl1);
-
-    const currentPalette = paletteForDepth(OceanState.depth);
-    fish.forEach(f => {
-      if (f.type !== 'jelly') {
-        f.x += f.vx;
-        if (f.vx > 0 && f.x > width + 60) Object.assign(f, makeFish(true));
-        if (f.vx < 0 && f.x < -60) Object.assign(f, makeFish(true));
-      } else {
-        f.x += f.vx;
-        if (f.x > width + 60 || f.x < -60) Object.assign(f, makeFish(true));
+    const setIn = (f) => {
+      if (lineIn) {
+        lineIn.style.setProperty('--fill-in', `${f * 100}%`);
+        if (dotIn) dotIn.style.setProperty('--dot-opacity-in', f > 0.95 ? 1 : 0);
       }
-      if (f.visibility <= currentPalette.density) drawFish(f);
-    });
-
-    drawWaveLayer(Math.max(horizonY, -40) + 92, 16, 0.006, 0.32, 4.2, wl2);
-
-    particles.forEach(pt => {
-      pt.y -= pt.speed;
-      pt.x += Math.sin(time * 0.4 + pt.phase) * pt.drift * 0.3;
-      if (pt.y < 0) { pt.y = height; pt.x = Math.random() * width; }
-      const flicker = 0.3 + Math.sin(time * 1.5 + pt.phase) * 0.25;
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${Math.max(0, flicker * 0.35).toFixed(2)})`;
-      ctx.fill();
-    });
-
-    drawSky(horizonY);
-    drawWaterSurfaceLine(horizonY);
-
-    time += 0.012;
-    requestAnimationFrame(drawFrame);
-  }
-
-  window.addEventListener('resize', () => { resize(); createParticles(); createFish(); createStars(); });
-
-  resize();
-  createParticles();
-  createFish();
-  createStars();
-  drawFrame();
-})();
-
-
-// ==========================================
-// 3. SCROLL DEPTH (drives colour, gauge, sky)
-// ==========================================
-(function initDepth() {
-  const metersEl = document.getElementById('gauge-meters');
-  const zoneEl = document.getElementById('gauge-zone');
-
-  function update() {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-    OceanState.depth = progress;
-    const zone = zoneAt(progress);
-    OceanState.meters = zone.meters;
-    OceanState.zoneName = zone.name;
-    document.documentElement.style.setProperty('--depth', progress.toFixed(3));
-    if (metersEl) metersEl.textContent = `${zone.meters.toLocaleString()} m`;
-    if (zoneEl) zoneEl.textContent = zone.name;
-  }
-
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-  update();
-})();
-
-
-// ==========================================
-// 2. CURSOR GLOW
-// ==========================================
-// (function initCursor() {
-//   const glow = document.getElementById('cursor-glow');
-//   if (!glow) return;
-//   let mx = 0, my = 0, cx = 0, cy = 0;
-
-//   window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-
-//   function animate() {
-//     cx += (mx - cx) * 0.08;
-//     cy += (my - cy) * 0.08;
-//     glow.style.left = cx + 'px';
-//     glow.style.top = cy + 'px';
-//     requestAnimationFrame(animate);
-//   }
-//   animate();
-// })();
-
-
-// ==========================================
-// 3. SCROLL REVEAL
-// ==========================================
-(function initScrollReveal() {
-  const targets = document.querySelectorAll(
-    '.skill-category, .timeline-item, .contact-link, .section-header, .bar-item, .project-empty, .contact-form'
-  );
-  targets.forEach(el => el.classList.add('reveal'));
-
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), 60);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-  targets.forEach(el => observer.observe(el));
-})();
-
-
-// ==========================================
-// 4. SKILL BAR ANIMATION
-// ==========================================
-(function initSkillBars() {
-  const bars = document.querySelectorAll('.bar-fill');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const bar = entry.target;
-        const width = bar.getAttribute('data-width');
-        setTimeout(() => { bar.style.width = width + '%'; }, 200);
-        observer.unobserve(bar);
-      }
-    });
-  }, { threshold: 0.5 });
-  bars.forEach(b => observer.observe(b));
-})();
-
-
-// ==========================================
-// 5. NAV ACTIVE STATE
-// ==========================================
-(function initNavActive() {
-  const sections = document.querySelectorAll('section[id], header[id]');
-  const links = document.querySelectorAll('.nav-link');
-
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.getAttribute('id');
-        links.forEach(link => {
-          link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
-        });
-      }
-    });
-  }, { rootMargin: '-45% 0px -45% 0px' });
-
-  sections.forEach(s => observer.observe(s));
-})();
-
-
-// ==========================================
-// 6. NAV SCROLL SHADOW
-// ==========================================
-(function initNavScroll() {
-  const nav = document.querySelector('.nav');
-  const maxBlur = 6;
-  const rampDistance = 160; // px of scroll over which blur fades in
-  window.addEventListener('scroll', () => {
-    nav.style.boxShadow = window.scrollY > 20 ? '0 10px 30px rgba(0,0,0,0.25)' : 'none';
-    const blur = Math.min(1, window.scrollY / rampDistance) * maxBlur;
-    nav.style.backdropFilter = `blur(${blur.toFixed(1)}px)`;
-    nav.style.webkitBackdropFilter = `blur(${blur.toFixed(1)}px)`;
-  });
-})();
-
-
-// ==========================================
-// 7. CONTACT FORM
-// ==========================================
-(function initContactForm() {
-  const btn = document.getElementById('send-btn');
-  if (!btn) return;
-
-  btn.addEventListener('click', () => {
-    const nameInput = document.querySelector('.contact-form .form-input');
-    if (nameInput && !nameInput.value.trim()) {
-      nameInput.style.borderColor = 'rgba(248, 113, 113, 0.6)';
-      setTimeout(() => { nameInput.style.borderColor = ''; }, 1800);
-      return;
-    }
-
-    const original = btn.innerHTML;
-    btn.innerHTML = `<span>Sending…</span>`;
-    btn.disabled = true;
-
-    setTimeout(() => {
-      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Message Sent</span>`;
-      setTimeout(() => {
-        btn.innerHTML = original;
-        btn.disabled = false;
-      }, 2600);
-    }, 1200);
-  });
-})();
-
-
-// ==========================================
-// 8. THEME TOGGLE (Surface / Depths)
-// ==========================================
-(function initThemeToggle() {
-  const btn = document.getElementById('theme-toggle');
-  if (!btn) return;
-
-  const saved = localStorage.getItem('ocean-theme');
-  if (saved === 'surface') document.body.classList.add('surface');
-
-  btn.addEventListener('click', () => {
-    document.body.classList.toggle('surface');
-    const isSurface = document.body.classList.contains('surface');
-    if (isSurface) {
-      localStorage.setItem('ocean-theme', 'surface');
-    } else {
-      localStorage.removeItem('ocean-theme');
-    }
-  });
-})();
-
-
-// ==========================================
-// 9. LATEST WORK SLIDESHOW
-// ==========================================
-(function initWorkWidget() {
-  const widget = document.getElementById('work-widget');
-  if (!widget) return;
-
-  // EDIT ME — swap these in for your real projects.
-  // The whole card links to biprashpandey.com.np/projects,
-  // so keep these as short teasers, not full case studies.
-  const slides = [
-    {
-      title: 'Ocean Current Anomaly Detector',
-      desc: 'LSTM-based model flagging irregular current patterns from buoy sensor data.',
-      tags: ['PyTorch', 'Time Series', 'LSTM']
-    },
-    {
-      title: 'Handwritten Devanagari OCR',
-      desc: 'CNN pipeline for recognizing handwritten Nepali script, trained from scratch.',
-      tags: ['CNN', 'OpenCV', 'Python']
-    },
-    {
-      title: 'Campus Bus Tracker',
-      desc: 'Real-time GPS tracking web app for Pulchowk Campus shuttle routes.',
-      tags: ['React', 'Node.js', 'WebSocket']
-    }
-  ];
-
-  const titleEl = document.getElementById('work-widget-title');
-  const descEl = document.getElementById('work-widget-desc');
-  const tagsEl = document.getElementById('work-widget-tags');
-  const indexEl = document.getElementById('work-widget-index');
-  const totalEl = document.getElementById('work-widget-total');
-  const dotsEl = document.getElementById('work-widget-dots');
-
-  const pad = n => String(n + 1).padStart(2, '0');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  let current = 0;
-  let timer = null;
-
-  function render(i) {
-    const s = slides[i];
-    titleEl.textContent = s.title;
-    descEl.textContent = s.desc;
-    tagsEl.innerHTML = s.tags.map(t => `<span>${t}</span>`).join('');
-    indexEl.textContent = pad(i);
-    [...dotsEl.children].forEach((dot, di) => dot.classList.toggle('active', di === i));
-  }
-
-  function goTo(i) {
-    current = (i + slides.length) % slides.length;
-    render(current);
-    restart();
-  }
-
-  function next() { goTo(current + 1); }
-
-  function restart() {
-    if (reduceMotion || slides.length < 2) return;
-    clearInterval(timer);
-    timer = setInterval(next, 5000);
-  }
-
-  totalEl.textContent = pad(slides.length - 1);
-  slides.forEach((_, i) => {
-    const dot = document.createElement('span');
-    dot.className = 'work-widget-dot-btn';
-    dot.setAttribute('role', 'button');
-    dot.setAttribute('aria-label', `Show project ${i + 1}`);
-    dot.addEventListener('click', () => goTo(i));
-    dotsEl.appendChild(dot);
-  });
-
-  render(0);
-  restart();
-
-  widget.addEventListener('mouseenter', () => clearInterval(timer));
-  widget.addEventListener('mouseleave', restart);
-})();
-
-
-// ==========================================
-// 10. PHOTO SLIDESHOW WIDGET
-// ==========================================
-// Reads gallery/photos/manifest.json — a plain JSON array of filenames,
-// e.g. ["beach.jpg", "trek-01.png", "friends.webp"].
-// Regenerate it any time with gallery/generate-manifest.py so it stays
-// in sync with whatever's actually sitting in /gallery/photos.
-// Only ONE photo is ever loaded at a time (the next isn't fetched until
-// it's about to be shown), so this stays light no matter how many
-// photos are in the folder.
-(function initPhotoWidget() {
-  const widget = document.getElementById('photo-widget');
-  if (!widget) return;
-
-  const imgEl = document.getElementById('photo-widget-img');
-  const indexEl = document.getElementById('photo-widget-index');
-  const totalEl = document.getElementById('photo-widget-total');
-  const dotsEl = document.getElementById('photo-widget-dots');
-  const frameEl = widget.querySelector('.photo-widget-frame');
-
-  const MANIFEST_URL = 'gallery/photos/manifest.json';
-  const PHOTOS_DIR = 'gallery/photos/';
-  const MAX_DOTS = 10;
-
-  const pad = n => String(n + 1).padStart(2, '0');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  let slides = [];
-  let current = 0;
-  let timer = null;
-
-  function showEmpty() {
-    if (frameEl) {
-      frameEl.innerHTML = '<span class="photo-widget-empty-text">Add photos to /gallery/photos</span>';
-    }
-    if (indexEl) indexEl.textContent = '00';
-    if (totalEl) totalEl.textContent = '00';
-  }
-
-  function render(i) {
-    const file = slides[i];
-    const preload = new Image();
-    preload.decoding = 'async';
-    preload.onload = () => {
-      imgEl.src = preload.src;
-      imgEl.classList.add('is-loaded');
     };
-    preload.src = PHOTOS_DIR + encodeURIComponent(file);
-    imgEl.alt = `Photo ${i + 1}`;
-    indexEl.textContent = pad(i);
-    if (dotsEl.children.length) {
-      [...dotsEl.children].forEach((dot, di) => dot.classList.toggle('active', di === i));
-    }
-  }
 
-  function goTo(i) {
-    current = (i + slides.length) % slides.length;
-    render(current);
-    restart();
-  }
-
-  function next() { goTo(current + 1); }
-
-  function restart() {
-    if (reduceMotion || slides.length < 2) return;
-    clearInterval(timer);
-    timer = setInterval(next, 5000);
-  }
-
-  fetch(MANIFEST_URL)
-    .then(res => { if (!res.ok) throw new Error('no manifest'); return res.json(); })
-    .then(list => {
-      if (!Array.isArray(list) || list.length === 0) throw new Error('empty manifest');
-      slides = list;
-      totalEl.textContent = pad(slides.length - 1);
-
-      if (slides.length <= MAX_DOTS) {
-        slides.forEach((_, i) => {
-          const dot = document.createElement('span');
-          dot.className = 'photo-widget-dot-btn';
-          dot.setAttribute('role', 'button');
-          dot.setAttribute('aria-label', `Show photo ${i + 1}`);
-          dot.addEventListener('click', e => { e.preventDefault(); goTo(i); });
-          dotsEl.appendChild(dot);
-        });
+    if (i < idx) {
+      box.style.opacity = 0;
+      box.style.transform = `translateY(${-travel}px) scale(.94)`;
+      box.style.pointerEvents = 'none';
+      setOut(1); setIn(1);
+    } else if (i === idx) {
+      if (i === boxes.length - 1) {
+        // Last box is the end of the page — it stays centered,
+        // never exits, no matter how far down you scroll.
+        box.style.opacity = 1;
+        box.style.transform = 'translateY(0px) scale(1)';
+        box.style.pointerEvents = 'auto';
+        setOut(0); setIn(1);
       } else {
-        dotsEl.style.display = 'none';
+        // Current box: climbs away across the whole scroll range.
+        // Scrolling back up reverses this — it settles back down to mid.
+        const fade = remap(local, 0.25, 0.75, 0, 1);
+        box.style.opacity = 1 - fade;
+        box.style.transform = `translateY(${local * -travel}px) scale(${1 - local * 0.06})`;
+        box.style.pointerEvents = local < 0.5 ? 'auto' : 'none';
+        setOut(local);
+        setIn(idx > 0 ? 1 : 0);
       }
-
-      render(0);
-      restart();
-    })
-    .catch(showEmpty);
-
-  widget.addEventListener('mouseenter', () => clearInterval(timer));
-  widget.addEventListener('mouseleave', restart);
-})();
-
-window.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash) {
-        const targetElement = document.querySelector(window.location.hash);
-        if (targetElement) {
-            // Small timeout ensures the DOM and layout are fully rendered before scrolling
-            setTimeout(() => {
-                targetElement.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-        }
+    } else if (i === idx + 1) {
+      // Next box: rises from below into mid across the whole range.
+      const fade = remap(local, 0.25, 0.75, 0, 1);
+      box.style.opacity = fade;
+      box.style.transform = `translateY(${(1 - local) * travel}px) scale(${0.94 + local * 0.06})`;
+      box.style.pointerEvents = local > 0.5 ? 'auto' : 'none';
+      setOut(0); setIn(fade);
+    } else {
+      box.style.opacity = 0;
+      box.style.transform = `translateY(${travel}px) scale(.94)`;
+      box.style.pointerEvents = 'none';
+      setOut(0); setIn(0);
     }
+  });
+
+  // Nav active state follows the pinned box (the old observer can't —
+  // stacked absolute boxes share one viewport rect).
+  const activeId = boxes[idx] ? boxes[idx].id : null;
+  document.querySelectorAll('.nav-link[href^="#"]').forEach((link) => {
+    link.classList.toggle('active', `#${activeId}` === link.hash);
+  });
+}
+
+let stageQueued = false;
+function onStageScroll() {
+  if (reduceMotion) { renderStage(); return; }
+  if (stageQueued) return;
+  stageQueued = true;
+  requestAnimationFrame(() => { stageQueued = false; renderStage(); });
+}
+
+if (track && boxes.length) {
+  const n = boxes.length;
+  track.style.height = `${n * 100}vh`;
+  document.addEventListener('scroll', onStageScroll, { passive: true });
+  window.addEventListener('resize', debounce(renderStage, 150));
+  if (typeof stageNarrow.addEventListener === 'function') {
+    stageNarrow.addEventListener('change', renderStage);
+  }
+  renderStage();
+}
+
+// Nav / in-page anchor jumps land mid-dwell inside the track.
+function scrollToBox(id, behavior) {
+  const idx = boxes.findIndex((b) => b.id === id);
+  if (idx < 0 || !track) return false;
+  if (!stageEnabled()) return false; // let the browser do the native jump
+  const total = track.offsetHeight - window.innerHeight;
+  const trackTop = track.getBoundingClientRect().top + window.scrollY;
+  const targetScroll = trackTop + (total * (idx + 0.2)) / boxes.length;
+  window.scrollTo({ top: targetScroll, behavior: behavior || (reduceMotion ? 'auto' : 'smooth') });
+  return true;
+}
+
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener('click', (e) => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#') return;
+    if (scrollToBox(decodeURIComponent(href.slice(1)))) e.preventDefault();
+  });
 });
 
+// Discrete paging: one wheel notch (or arrow press) moves exactly one box
+// while the pinned stage owns the viewport. Native scrolling takes over
+// above the first box and below the last one.
+let pageLockUntil = 0;
 
-// ==========================================
-// 11. ABOUT ME TOGGLE
-// ==========================================
-(function initAboutToggle() {
-  const wrap = document.getElementById('about-toggle-wrap');
-  if (!wrap) return;
- 
-  const trigger = document.getElementById('about-trigger');
-  const collapse = document.getElementById('about-collapse');
- 
-  function open() {
-    wrap.classList.add('is-open');
-    trigger.setAttribute('aria-expanded', 'true');
-  }
-  function close() {
-    wrap.classList.remove('is-open');
-    trigger.setAttribute('aria-expanded', 'false');
-  }
- 
-  trigger.addEventListener('click', open);
-  collapse.addEventListener('click', close);
-})();
- 
+function currentStageIndex() {
+  if (!stageEnabled()) return -1;
+  const total = track.offsetHeight - window.innerHeight;
+  if (total <= 0) return 0;
+  const scrolled = clamp(-track.getBoundingClientRect().top, 0, total);
+  return clamp(Math.floor((scrolled / total) * boxes.length), 0, boxes.length - 1);
+}
+
+function stageHasFocus() {
+  if (!stageEnabled()) return false;
+  const r = track.getBoundingClientRect();
+  return r.top <= 0 && r.bottom >= window.innerHeight;
+}
+
+function pageStep(dir) {
+  const idx = currentStageIndex();
+  const next = idx + dir;
+  if (idx < 0 || next < 0 || next >= boxes.length) return false;
+  scrollToBox(boxes[next].id);
+  return true;
+}
+
+document.addEventListener('wheel', (e) => {
+  if (!stageHasFocus() || e.ctrlKey) return; // pinch-zoom untouched
+  // Normalize line-mode deltas (classic mouse notch) to px for thresholding.
+  const dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
+  if (Math.abs(dy) < 30) return; // trackpad micro-drift scrolls natively
+  const dir = dy > 0 ? 1 : -1;
+  const now = performance.now();
+  if (now < pageLockUntil) { e.preventDefault(); return; }
+  const idx = currentStageIndex();
+  if (idx + dir < 0 || idx + dir >= boxes.length) return; // let native scroll leave the track
+  e.preventDefault();
+  pageLockUntil = now + 900;
+  pageStep(dir);
+}, { passive: false });
+
+document.addEventListener('keydown', (e) => {
+  if (!stageHasFocus()) return;
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+  if (performance.now() < pageLockUntil) { e.preventDefault(); return; }
+  const dir = e.key === 'ArrowDown' ? 1 : -1;
+  const idx = currentStageIndex();
+  if (idx + dir < 0 || idx + dir >= boxes.length) return;
+  e.preventDefault();
+  pageLockUntil = performance.now() + 900;
+  pageStep(dir);
+});
+
+function routeDeepLink() {
+  if (!location.hash) return;
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (boxes.some((b) => b.id === id)) scrollToBox(id, reduceMotion ? 'auto' : 'smooth');
+}
+window.addEventListener('hashchange', routeDeepLink);
+window.addEventListener('load', routeDeepLink);
+
+// Scroll-spy for normal-flow sections only — pinned .node-boxes share one
+// viewport rect, so their active state is driven by renderStage() instead.
+const sections = document.querySelectorAll('section[id]:not(.node-box), header[id]:not(.node-box)');
+const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+if ('IntersectionObserver' in window && navLinks.length) {
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach((link) => link.classList.toggle('active', link.hash === `#${entry.target.id}`));
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach((section) => sectionObserver.observe(section));
+}
+
+const preview = document.getElementById('photo-preview');
+if (preview) {
+  fetch('gallery/photos/manifest.json')
+    .then((response) => {
+      if (!response.ok) throw new Error('Photo manifest unavailable');
+      return response.json();
+    })
+    .then((photos) => {
+      photos.slice(0, 3).forEach((photo, index) => {
+        const link = document.createElement('a');
+        link.href = 'gallery/';
+        link.setAttribute('aria-label', 'Open photography gallery');
+        const image = document.createElement('img');
+        image.src = `gallery/photos/${encodeURIComponent(photo)}`;
+        image.alt = `Photography by Biprash Pandey ${index + 1}`;
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        link.appendChild(image);
+        preview.appendChild(link);
+      });
+    })
+    .catch(() => preview.closest('.photo-strip').hidden = true);
+}
