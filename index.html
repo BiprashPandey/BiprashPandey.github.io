@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Biprash Pandey | Computer Engineer</title>
   <meta name="description" content="Biprash Pandey is a computer engineering student in Kathmandu working on machine learning, computer vision, and getting models out of the notebook and into production." />
+  <meta name="theme-color" content="#050914" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,10 +15,15 @@
   <link rel="shortcut icon" href="favicon/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
   <link rel="manifest" href="favicon/site.webmanifest" />
-  <script>document.documentElement.dataset.theme = localStorage.getItem('theme') || 'light';</script>
-  <noscript><style>.node-box{position:static !important;opacity:1 !important;transform:none !important;}.link-line{display:none !important;}</style></noscript>
+  <noscript><style>.node-box{position:static !important;opacity:1 !important;transform:none !important;}.flow-layer,.flow-rail{display:none !important;}</style></noscript>
 </head>
 <body>
+  <div class="sky" aria-hidden="true">
+    <div class="sky-nebula"></div>
+    <div class="sky-stars"></div>
+    <span class="sky-shooting-star"></span>
+  </div>
+
   <nav class="nav" aria-label="Primary navigation">
     <a href="#top" class="nav-logo" aria-label="Biprash Pandey, home">Biprash Pandey</a>
     <div class="nav-links">
@@ -26,20 +32,43 @@
       <a href="gallery/" class="nav-link">Photography</a>
     </div>
     <div class="nav-actions">
-      <button class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Toggle theme">
-        <svg class="theme-icon theme-icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <svg class="theme-icon theme-icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-      </button>
       <a class="nav-contact" href="mailto:biprashpandey@gmail.com">Let's talk</a>
     </div>
   </nav>
 
   <main>
    <div class="track" id="track">
-    <div class="stage">
+    <div class="stage" id="stage">
+     <svg class="flow-layer" id="flow-layer" width="100%" height="100%" aria-hidden="true">
+       <defs>
+         <linearGradient id="flow-in-gradient" x1="0" y1="1" x2="0" y2="0">
+           <stop offset="0" stop-color="#8db6ff" stop-opacity="0" />
+           <stop offset=".55" stop-color="#8db6ff" stop-opacity=".55" />
+           <stop offset="1" stop-color="#d4e3ff" stop-opacity=".95" />
+         </linearGradient>
+         <linearGradient id="flow-out-gradient" x1="0" y1="0" x2="0" y2="1">
+           <stop offset="0" stop-color="#8db6ff" stop-opacity="0" />
+           <stop offset=".45" stop-color="#8db6ff" stop-opacity=".55" />
+           <stop offset="1" stop-color="#d4e3ff" stop-opacity=".95" />
+         </linearGradient>
+         <marker id="flow-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+           <path d="M0 1 L8 5 L0 9 Z" fill="#c9dbff" />
+         </marker>
+       </defs>
+       <path class="flow-track flow-track-in" />
+       <path class="flow-track flow-track-out" />
+       <path class="flow-track flow-track-next" />
+       <path class="flow-progress flow-progress-in" marker-end="url(#flow-arrow)" />
+       <path class="flow-progress flow-progress-out" marker-end="url(#flow-arrow)" />
+       <path class="flow-progress flow-progress-next" marker-end="url(#flow-arrow)" />
+       <circle class="flow-port flow-port-in" r="3.5" />
+       <circle class="flow-port flow-port-out" r="3.5" />
+       <circle class="flow-port flow-port-next" r="3.5" />
+       <circle class="flow-pulse flow-pulse-out" r="4" />
+       <circle class="flow-pulse flow-pulse-in" r="4" />
+     </svg>
      <div class="stack" id="stack">
-      <header class="hero node-box" data-i="0" id="top">
-        <div class="link-line out" aria-hidden="true"><div class="link-dot"></div></div>
+      <header class="hero node-box" data-i="0" data-step-label="Intro" id="top">
       <div class="hero-inner">
         <p class="hero-pre">Computer engineering · ML &amp; computer vision · Kathmandu</p>
         <h1 class="hero-name">I train models, then make them work outside the notebook.</h1>
@@ -52,8 +81,7 @@
       <p class="hero-foot">Looking for an internship or a research project. If you have one, email me.</p>
       </header>
 
-      <section class="section node-box" data-i="1" id="work">
-      <div class="link-line in" aria-hidden="true"><div class="link-dot in"></div></div>
+      <section class="section node-box" data-i="1" data-step-label="Work" id="work">
       <div class="section-heading-row">
         <h2 class="section-title">A few things I've built.</h2>
         <a href="projects/" class="text-link">All projects
@@ -69,11 +97,9 @@
         <div class="projects-dots" id="projects-dots"></div>
       </div>
       <div class="project-empty" id="projects-empty" hidden><h3>Projects are being documented.</h3><p>Check back soon, or get in touch for a walkthrough.</p></div>
-      <div class="link-line out" aria-hidden="true"><div class="link-dot"></div></div>
       </section>
 
-      <section class="section node-box" data-i="2" id="experience">
-      <div class="link-line in" aria-hidden="true"><div class="link-dot in"></div></div>
+      <section class="section node-box" data-i="2" data-step-label="Experience" id="experience">
       <div class="section-heading-row">
         <h2 class="section-title">Studies, work, and things I'm teaching myself.</h2>
       </div>
@@ -103,21 +129,17 @@
           </div>
         </article>
       </div>
-      <div class="link-line out" aria-hidden="true"><div class="link-dot"></div></div>
       </section>
 
-      <section class="section section-surface photo-strip node-box" data-i="3" id="photography" aria-labelledby="photography-title">
-      <div class="link-line in" aria-hidden="true"><div class="link-dot in"></div></div>
+      <section class="section section-surface photo-strip node-box" data-i="3" data-step-label="Photography" id="photography" aria-labelledby="photography-title">
       <div class="section-heading-row">
         <h2 class="section-title" id="photography-title">What I look at when the screen is off.</h2>
         <a href="gallery/" class="text-link">Open gallery <span aria-hidden="true">→</span></a>
       </div>
       <div class="photo-preview" id="photo-preview" aria-live="polite"></div>
-      <div class="link-line out" aria-hidden="true"><div class="link-dot"></div></div>
       </section>
 
-      <section class="contact node-box" data-i="4" id="contact">
-      <div class="link-line in" aria-hidden="true"><div class="link-dot in"></div></div>
+      <section class="contact node-box" data-i="4" data-step-label="Contact" id="contact">
       <h2 class="contact-title">If you have a problem worth thinking hard about, email me.</h2>
       <p class="contact-support">I'm open to internships, research collaborations, and real engineering problems. I read every email I get.</p>
       <a href="mailto:biprashpandey@gmail.com" class="contact-email">biprashpandey@gmail.com</a>
@@ -129,6 +151,7 @@
       <p class="contact-copy">© 2026 Biprash Pandey</p>
       </section>
      </div>
+     <nav class="flow-rail" id="flow-rail" aria-label="Section flow"></nav>
     </div>
    </div>
   </main>
